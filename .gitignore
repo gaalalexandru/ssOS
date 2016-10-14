@@ -1,0 +1,14 @@
+*.i
+*._ip
+*.o
+*.__i
+*._ia
+*.d
+*.crf
+*.dep
+*.lst
+*.axf
+*.htm
+*.hex
+*.map
+*.lnp

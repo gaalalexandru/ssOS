@@ -104,3 +104,11 @@ void OS_Launch(uint32_t theTimeSlice){
   STCTRL = 0x00000007;         // enable, core clock and interrupt arm
   StartOS();                   // start on the first task
 }
+
+/*ssOS - Scheduler*/
+void Scheduler(void){
+  RunPt = RunPt->next; // skip at least one
+  while((RunPt->Sleep)||(RunPt-> blocked)){  //sleeping and blocking implemented
+    RunPt = RunPt->next; // find one not sleeping and not blocked 
+  }
+}
