@@ -23,6 +23,10 @@
  For more information about my classes, my research, and my books, see
  http://users.ece.utexas.edu/~valvano/
  */
+ 
+// *******************************************************************************************************
+// ***************************************** Declaration section *****************************************
+// *******************************************************************************************************
 
 #include <stdint.h>
 #include "os.h"
@@ -34,14 +38,21 @@ void StartOS(void);
 
 #define NUMTHREADS  3        // maximum number of threads
 #define STACKSIZE   100      // number of 32-bit words in stack
+
 struct tcb{
-  int32_t *sp;       // pointer to stack (valid for threads not running
-  struct tcb *next;  // linked-list pointer
+  int32_t *sp;      //pointer to stack (valid for threads not running
+  struct tcb *next; //linked-list pointer
+	int32_t *blocked;	//pointer to semaphore that is blocked
+	int32_t sleep;		//counter for sleep
 };
 typedef struct tcb tcbType;
 tcbType tcbs[NUMTHREADS];
 tcbType *RunPt;
 int32_t Stacks[NUMTHREADS][STACKSIZE];
+
+// *******************************************************************************************************
+// ******************************************* OS Init section *******************************************
+// *******************************************************************************************************
 
 // ******** OS_Init ************
 // initialize operating system, disable interrupts until OS_Launch
@@ -105,6 +116,10 @@ void OS_Launch(uint32_t theTimeSlice){
   StartOS();                   // start on the first task
 }
 
+// *******************************************************************************************************
+// ************************************** Thread scheduling section **************************************
+// *******************************************************************************************************
+
 /*ssOS - Scheduler*/
 void Scheduler(void){
   RunPt = RunPt->next; // skip at least one
@@ -112,3 +127,67 @@ void Scheduler(void){
     RunPt = RunPt->next; // find one not sleeping and not blocked 
   }
 }
+
+//******** OS_Suspend ***************
+// Called by main thread to cooperatively suspend operation
+// Inputs: none
+// Outputs: none
+// Will be run again depending on sleep/block status
+void OS_Suspend(void){
+  STCURRENT = 0;        // any write to current clears it
+  INTCTRL = 0x04000000; // trigger SysTick
+// next thread gets a full time slice
+}
+
+// *******************************************************************************************************
+// ****************************************** Semaphore section ******************************************
+// *******************************************************************************************************
+
+// ******** OS_InitSemaphore ************
+// Initialize counting semaphore
+// Inputs:  pointer to a semaphore
+//          initial value of semaphore
+// Outputs: none
+void OS_InitSemaphore(int32_t *semaPt, int32_t value){
+  //Assign initial value to *semaPt
+	*semaPt = value;
+}
+
+// ******** OS_Wait ************
+// Decrement semaphore and block if less than zero
+// Lab2 spinlock (does not suspend while spinning)
+// Lab3 block if less than zero
+// Inputs:  pointer to a counting semaphore
+// Outputs: none
+void OS_Wait(int32_t *semaPt){
+	DisableInterrupts();
+	*semaPt = (*semaPt) - 1;
+	if(*semaPt < 0){
+		RunPt->blocked = semaPt;	//Point to semaphore which is blocked
+		EnableInterrupts();
+		OS_Suspend();	//Switch threads by generating a systick interrupt
+	}
+	EnableInterrupts();
+}
+
+// ******** OS_Signal ************
+// Increment semaphore
+// Lab2 spinlock
+// Lab3 wakeup blocked thread if appropriate
+// Inputs:  pointer to a counting semaphore
+// Outputs: none
+void OS_Signal(int32_t *semaPt){
+	tcbType	*threadPt;	//local thread pointer
+	DisableInterrupts();
+	*semaPt = (*semaPt) + 1;
+	if(*semaPt <= 0){
+		threadPt = RunPt->next;	//point to next thread
+		while((threadPt->blocked) != semaPt) {	threadPt = threadPt->next; }//search for a thread that is blocked on this semaphore
+		threadPt->blocked = 0;	//unblock 1st blocked thread found
+	}
+	EnableInterrupts();
+}
+
+// *******************************************************************************************************
+// ******************************************** FIFO section *********************************************
+// *******************************************************************************************************
