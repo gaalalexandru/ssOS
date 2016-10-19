@@ -30,27 +30,104 @@
 
 
 // ******** OS_Init ************
-// initialize operating system, disable interrupts until OS_Launch
-// initialize OS controlled I/O: systick,
-// input:  none
-// output: none
+// Initialize operating system, disable interrupts
+// Initialize OS controlled I/O: periodic interrupt, bus clock as fast as possible
+// Initialize OS global variables
+// Inputs:  none
+// Outputs: none
 void OS_Init(void);
 
-//******** OS_AddThread ***************
-// add three foregound threads to the scheduler
-// Inputs: three pointers to a void/void foreground tasks
+//******** OS_AddThreads ***************
+// Add main threads to the scheduler
+// Inputs: function pointers to void/void main threads
 // Outputs: 1 if successful, 0 if this thread can not be added
-int OS_AddThreads(void(*task0)(void),
-                 void(*task1)(void),
-                 void(*task2)(void));
+// This function will only be called once, after OS_Init and before OS_Launch
+int OS_AddThreads(void(*thread0)(void),
+                  void(*thread1)(void),
+                  void(*thread2)(void),
+                  void(*thread3)(void),
+                  void(*thread4)(void),
+                  void(*thread5)(void));
 
-
+//******** OS_AddPeriodicEventThread ***************
+// Add one background periodic event thread
+// Typically this function receives the highest priority
+// Inputs: pointer to a void/void event thread function
+//         period given in units of OS_Launch (Lab 3 this will be msec)
+// Outputs: 1 if successful, 0 if this thread cannot be added
+// It is assumed that the event threads will run to completion and return
+// It is assumed the time to run these event threads is short compared to 1 msec
+// These threads cannot spin, block, loop, sleep, or kill
+// These threads can call OS_Signal
+// In Lab 3 this will be called exactly twice
+int OS_AddPeriodicEventThread(void(*thread)(void), uint32_t period);
 
 //******** OS_Launch ***************
-// start the scheduler, enable interrupts
+// Start the scheduler, enable interrupts
 // Inputs: number of clock cycles for each time slice
 //         (maximum of 24 bits)
 // Outputs: none (does not return)
+// Errors: theTimeSlice must be less than 16,777,216
 void OS_Launch(uint32_t theTimeSlice);
+
+//******** OS_Suspend ***************
+// Called by main thread to cooperatively suspend operation
+// Inputs: none
+// Outputs: none
+// Will be run again depending on sleep/block status
+void OS_Suspend(void);
+
+// ******** OS_Sleep ************
+// place this thread into a dormant state
+// input:  number of msec to sleep
+// output: none
+// OS_Sleep(0) implements cooperative multitasking
+void OS_Sleep(uint32_t sleepTime);
+
+// ******** OS_InitSemaphore ************
+// Initialize counting semaphore
+// Inputs:  pointer to a semaphore
+//          initial value of semaphore
+// Outputs: none
+void OS_InitSemaphore(int32_t *semaPt, int32_t value);
+
+// ******** OS_Wait ************
+// Decrement semaphore and block if less than zero
+// Lab2 spinlock (does not suspend while spinning)
+// Lab3 block if less than zero
+// Inputs:  pointer to a counting semaphore
+// Outputs: none
+void OS_Wait(int32_t *semaPt);
+
+// ******** OS_Signal ************
+// Increment semaphore
+// Lab2 spinlock
+// Lab3 wakeup blocked thread if appropriate
+// Inputs:  pointer to a counting semaphore
+// Outputs: none
+void OS_Signal(int32_t *semaPt);
+
+// ******** OS_FIFO_Init ************
+// Initialize FIFO. 
+// One event thread producer, one main thread consumer
+// Inputs:  none
+// Outputs: none
+void OS_FIFO_Init(void);
+
+// ******** OS_FIFO_Put ************
+// Put an entry in the FIFO.  
+// Exactly one event thread puts,
+// do not block or spin if full
+// Inputs:  data to be stored
+// Outputs: 0 if successful, -1 if the FIFO is full
+int OS_FIFO_Put(uint32_t data);
+
+// ******** OS_FIFO_Get ************
+// Get an entry from the FIFO.   
+// Exactly one main thread get,
+// do block if empty
+// Inputs:  none
+// Outputs: data retrieved
+uint32_t OS_FIFO_Get(void);
 
 #endif
