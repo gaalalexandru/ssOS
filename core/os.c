@@ -40,10 +40,11 @@ void StartOS(void);
 void static runperiodicevents(void);
 void static runsleep(void);
 
-#define NUMTHREADS  6        // maximum number of threads
+#define NUMTHREADS  6        // number of main threads
 #define NUMPERIODIC 2        // maximum number of periodic threads
 #define STACKSIZE   100      // number of 32-bit words in stack per thread
-struct tcb{
+
+struct tcb{					//main thread controll block
   int32_t *sp;      // pointer to stack (valid for threads not running
   struct tcb *next; // linked-list pointer
 	int32_t *blocked;	// pointer to blocked semaphore, nonzero if blocked on this semaphore
@@ -54,7 +55,7 @@ tcbType tcbs[NUMTHREADS];
 tcbType *RunPt;
 int32_t Stacks[NUMTHREADS][STACKSIZE];
 
-struct ptcb{
+struct ptcb{	//periodic thread controll block
 	void (*task)(void);
 	uint32_t period;
 	uint32_t counter;
@@ -76,8 +77,10 @@ void OS_Init(void){
   // perform any initializations needed
   DisableInterrupts();
   BSP_Clock_InitFastest();// set processor clock to fastest speed
-  BSP_PeriodicTask_Init(runperiodicevents,1000,2);	//Start one HW Timer with periodic interrupt at 1000 Hz
-  BSP_PeriodicTask_InitB(runsleep,1000,3);	//Start one HW Timer with periodic interrupt at 1000 Hz
+  BSP_PeriodicTask_Init(runperiodicevents,1000,2);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 2
+  BSP_PeriodicTask_InitB(runsleep,1000,3);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 3
+	//Periodic tasks / events / interrupts priority number: 
+	//0 = highest priority ... 7 = lowest priority
 }
 
 void SetInitialStack(int i){
@@ -153,17 +156,14 @@ int OS_AddThreads(void(*thread0)(void),
 // Add one background periodic event thread
 // Typically this function receives the highest priority
 // Inputs: pointer to a void/void event thread function
-//         period given in units of OS_Launch (Lab 3 this will be msec)
+//         period given in units of OS_Launch (in this setup 1ms)
 // Outputs: 1 if successful, 0 if this thread cannot be added
 // It is assumed that the event threads will run to completion and return
 // It is assumed the time to run these event threads is short compared to 1 msec
 // These threads cannot spin, block, loop, sleep, or kill
 // These threads can call OS_Signal
-// In Lab 3 this will be called exactly twice
 int OS_AddPeriodicEventThread(void(*thread)(void), uint32_t period){
 	int32_t static event_number = 0;
-	//int32_t frequency;
-	//frequency = 1000/period;	//in this case 1000 / 1ms = 1000 Hz
 	PerTask[event_number].task = thread;
 	PerTask[event_number].period = period;
 	PerTask[event_number].counter = 1;
@@ -201,7 +201,9 @@ void static runsleep(void){
 void OS_Launch(uint32_t theTimeSlice){
   STCTRL = 0;                  // disable SysTick during setup
   STCURRENT = 0;               // any write to current clears it
-  SYSPRI3 =(SYSPRI3&0x00FFFFFF)|0xE0000000; // priority 7
+  SYSPRI3 =(SYSPRI3&0x00FFFFFF)|0xE0000000; // set priority 7 for systick interrupt
+	//do not use higher priority than 7 because systick will switch the main threads 
+	//and needs to be interrupted by event threads
   STRELOAD = theTimeSlice - 1; // reload value
   STCTRL = 0x00000007;         // enable, core clock and interrupt arm
   StartOS();                   // start on the first task
@@ -297,23 +299,81 @@ void OS_Signal(int32_t *semaPt){
 // ******************************************** FIFO section *********************************************
 // *******************************************************************************************************
 
-#define FSIZE 10    // can be any size
-uint32_t PutI;      // index of where to put next
-uint32_t GetI;      // index of where to get next
-uint32_t Fifo[FSIZE];
-int32_t CurrentSize;// 0 means FIFO empty, FSIZE means full
-uint32_t LostData;  // number of lost pieces of data
+
+
+
+fifo_t Fifo_A[FSIZE];
+fifo_t Fifo_B[FSIZE];
+fifo_t Fifo_C[FSIZE];
+
+//------------------------------------------------------------------------------------------------------------
+
+enum fifos{					//main thread controll block
+  A = 0,
+  B,
+	C
+};
+
+typedef enum fifos fifos_t;
+
+#define FSIZE_A 10  // FIFO A size
+#define FSIZE_B 10  // FIFO B size
+#define FSIZE_C 10  // FIFO C size
+
+
+uint32_t PutI_A;    // index of where to put next
+uint32_t PutI_B;
+uint32_t PutI_C;
+
+uint32_t GetI_A;    // index of where to get next
+uint32_t GetI_B;
+uint32_t GetI_C;
+
+uint32_t FifoA[FSIZE_A];
+uint32_t FifoB[FSIZE_B];
+uint32_t FifoC[FSIZE_C];
+
+int32_t CurrentSize_A;// 0 means FIFO empty, FSIZE means full
+int32_t CurrentSize_B;
+int32_t CurrentSize_C;
+
+uint32_t LostData_A;  // number of lost pieces of data
+uint32_t LostData_B;
+uint32_t LostData_C;
 
 // ******** OS_FIFO_Init ************
 // Initialize FIFO.  
 // One event thread producer, one main thread consumer
 // Inputs:  none
 // Outputs: none
-void OS_FIFO_Init(void){ //Init the FIFO with indexes and CurrentSize and LostData set to 0
-	PutI = 0;
-	GetI = 0;
-	OS_InitSemaphore(&CurrentSize,0);
+void OS_FIFO_Init(fifo_t *fifo){ //Init the FIFO with indexes and CurrentSize and LostData set to 0
+	fifo->PutI = 0;
+	fifo->GetI = 0;
+	OS_InitSemaphore(&fifo->CurrentSize,0);
 }
+	/*switch((uint8_t)x) {
+		case (A):
+			PutI_A = 0;
+			GetI_A = 0;
+			OS_InitSemaphore(&CurrentSize_A,0);
+			break;
+		case (B):
+			PutI_B = 0;
+			GetI_B = 0;
+			OS_InitSemaphore(&CurrentSize_B,0);
+			break;
+		case (C):
+			PutI_C = 0;
+			GetI_C = 0;
+			OS_InitSemaphore(&CurrentSize_C,0);
+			break;
+		default:
+			PutI_A = 0;
+			GetI_A = 0;
+			OS_InitSemaphore(&CurrentSize_A,0);
+			break;		
+	}
+}*/
 
 // ******** OS_FIFO_Put ************
 // Put an entry in the FIFO.  
@@ -321,18 +381,42 @@ void OS_FIFO_Init(void){ //Init the FIFO with indexes and CurrentSize and LostDa
 // do not block or spin if full
 // Inputs:  data to be stored
 // Outputs: 0 if successful, -1 if the FIFO is full
-int OS_FIFO_Put(uint32_t data){
-	if(CurrentSize == FSIZE) { //FIFO is full
-		LostData++;
+int OS_FIFO_Put(fifo_t *fifo,uint32_t data){
+	if(fifo->CurrentSize == FSIZE) { //FIFO is full
+		fifo->LostData++;
 		return -1; //Error
 	}
 	else {
-		Fifo[PutI] = data;	//store data in FIFO at put index
-		PutI = (PutI + 1)%FSIZE; //Increment Put index and wrap around if necessary
-		OS_Signal(&CurrentSize);
+		fifo->Fifo[fifo->PutI] = data;	//store data in FIFO at put index
+		fifo->PutI = (fifo->PutI + 1)%FSIZE; //Increment Put index and wrap around if necessary
+		OS_Signal(&fifo->CurrentSize);
 		return 0;	//Success
 	}
 }
+	/*	switch((uint8_t)x) {
+		case (A):
+			if(CurrentSize_A == FSIZE_A) { //FIFO is full
+				LostData_A++;
+				return -1; //Error
+			}
+			else {
+				FifoA[PutI_A] = data;	//store data in FIFO at put index
+				PutI_A = (PutI_A + 1)%FSIZE_A; //Increment Put index and wrap around if necessary
+				OS_Signal(&CurrentSize_A);
+				return 0;	//Success
+			}
+		case (B):
+			if(CurrentSize_B == FSIZE_B) { //FIFO is full
+				LostData_B++;
+				return -1; //Error
+			}
+			else {
+				FifoB[PutI_B] = data;	//store data in FIFO at put index
+				PutI_B = (PutI_B + 1)%FSIZE_B; //Increment Put index and wrap around if necessary
+				OS_Signal(&CurrentSize_A);
+				return 0;	//Success
+			}			
+}*/
 
 // ******** OS_FIFO_Get ************
 // Get an entry from the FIFO.   
@@ -340,9 +424,9 @@ int OS_FIFO_Put(uint32_t data){
 // do block if empty
 // Inputs:  none
 // Outputs: data retrieved
-uint32_t OS_FIFO_Get(void){uint32_t data;
-	OS_Wait(&CurrentSize);	//Wait till there is data in FIFO, block if empty
-	data = Fifo[GetI];	//Get stored data from Fifo
-	GetI = (GetI + 1) % FSIZE;	//Incremet Get index and wrap around
+uint32_t OS_FIFO_Get(fifo_t *fifo){uint32_t data;
+	OS_Wait(&fifo->CurrentSize);		//Wait till there is data in FIFO, block if empty
+	data = fifo->Fifo[fifo->GetI];	//Get stored data from Fifo
+	fifo->GetI = (fifo->GetI + 1) % FSIZE;	//Incremet Get index and wrap around
   return data;
 }

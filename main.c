@@ -35,7 +35,7 @@
 //#include "../inc/profile.h"
 
 
-#define THREADFREQ 500   // frequency in Hz
+#define THREADFREQ 1000   // frequency in Hz
 // runs each thread 2 ms
 uint32_t Count0;   // number of times Task0 loops
 uint32_t Count1;   // number of times Task1 loops
@@ -67,7 +67,7 @@ void Task2(void){
 int main(void){
   OS_Init();            // initialize, disable interrupts
   //Profile_Init();       // enable digital I/O on profile pins
-  OS_AddThreads(&Task0, &Task1, &Task2);
+  //OS_AddThreads(&Task0, &Task1, &Task2);
   //OS_Launch(BSP_Clock_GetFreq()/THREADFREQ); // doesn't return, interrupts enabled in here
   return 0;             // this never executes
 }

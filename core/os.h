@@ -28,6 +28,18 @@
 #ifndef __OS_H
 #define __OS_H  1
 
+#include <stdint.h>
+
+#define FSIZE 10  // general FIFO size
+
+struct fifo{
+	uint32_t Fifo[FSIZE];
+	uint32_t PutI;
+	uint32_t GetI;	
+	int32_t CurrentSize;
+	uint32_t LostData;
+};
+typedef struct fifo fifo_t;
 
 // ******** OS_Init ************
 // Initialize operating system, disable interrupts
@@ -112,7 +124,7 @@ void OS_Signal(int32_t *semaPt);
 // One event thread producer, one main thread consumer
 // Inputs:  none
 // Outputs: none
-void OS_FIFO_Init(void);
+void OS_FIFO_Init(fifo_t *fifo);
 
 // ******** OS_FIFO_Put ************
 // Put an entry in the FIFO.  
@@ -120,7 +132,7 @@ void OS_FIFO_Init(void);
 // do not block or spin if full
 // Inputs:  data to be stored
 // Outputs: 0 if successful, -1 if the FIFO is full
-int OS_FIFO_Put(uint32_t data);
+int OS_FIFO_Put(fifo_t *fifo,uint32_t data);
 
 // ******** OS_FIFO_Get ************
 // Get an entry from the FIFO.   
@@ -128,6 +140,6 @@ int OS_FIFO_Put(uint32_t data);
 // do block if empty
 // Inputs:  none
 // Outputs: data retrieved
-uint32_t OS_FIFO_Get(void);
+uint32_t OS_FIFO_Get(fifo_t *fifo);
 
 #endif
