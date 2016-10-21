@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\inc;.\core</IncludePath>
+              <IncludePath>.\inc;.\core;.\3rd_party</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -398,6 +398,31 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>3rd_party</GroupName>
+          <Files>
+            <File>
+              <FileName>BSP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\3rd_party\BSP.c</FilePath>
+            </File>
+            <File>
+              <FileName>Profile.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\3rd_party\Profile.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Documentation</GroupName>
+          <Files>
+            <File>
+              <FileName>readme.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\readme.txt</FilePath>
             </File>
           </Files>
         </Group>

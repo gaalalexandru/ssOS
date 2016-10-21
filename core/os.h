@@ -1,29 +1,8 @@
 // os.h
-// Runs on LM4F120/TM4C123/MSP432
+// Runs on LM4F120/TM4C123 will be ported to MSP432 in next version
+// ssOS - stupid simple Operating System
 // A very simple real time operating system with minimal features.
-// Daniel Valvano
-// February 8, 2016
-
-/* This example accompanies the book
-   "Embedded Systems: Real Time Interfacing to ARM Cortex M Microcontrollers",
-   ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2016
-
-   "Embedded Systems: Real-Time Operating Systems for ARM Cortex-M Microcontrollers",
-   ISBN: 978-1466468863, , Jonathan Valvano, copyright (c) 2016
-   Programs 4.4 through 4.12, section 4.2
-
- Copyright 2016 by Jonathan W. Valvano, valvano@mail.utexas.edu
-    You may use, edit, run or distribute this file
-    as long as the above copyright notice remains
- THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
- OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
- MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
- VALVANO SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
- OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
- For more information about my classes, my research, and my books, see
- http://users.ece.utexas.edu/~valvano/
- */
-
+// For copyright, configuration and usage read readme.txt
 
 #ifndef __OS_H
 #define __OS_H  1
@@ -34,10 +13,11 @@
 
 struct fifo{
 	uint32_t Fifo[FSIZE];
-	uint32_t PutI;
-	uint32_t GetI;	
+	uint32_t LostData;	
 	int32_t CurrentSize;
-	uint32_t LostData;
+	int32_t Mutex;
+	uint8_t PutI;
+	uint8_t GetI;
 };
 typedef struct fifo fifo_t;
 
@@ -143,3 +123,4 @@ int OS_FIFO_Put(fifo_t *fifo,uint32_t data);
 uint32_t OS_FIFO_Get(fifo_t *fifo);
 
 #endif
+//EOF

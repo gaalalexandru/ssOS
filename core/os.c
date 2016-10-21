@@ -1,28 +1,8 @@
 // os.c
-// Runs on LM4F120/TM4C123/MSP432
+// Runs on LM4F120/TM4C123 will be ported to MSP432 in next version
+// ssOS - stupid simple Operating System
 // A very simple real time operating system with minimal features.
-// Daniel Valvano
-// February 8, 2016
-
-/* This example accompanies the book
-   "Embedded Systems: Real Time Interfacing to ARM Cortex M Microcontrollers",
-   ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2016
-
-   "Embedded Systems: Real-Time Operating Systems for ARM Cortex-M Microcontrollers",
-   ISBN: 978-1466468863, , Jonathan Valvano, copyright (c) 2016
-   Programs 4.4 through 4.12, section 4.2
-
- Copyright 2016 by Jonathan W. Valvano, valvano@mail.utexas.edu
-    You may use, edit, run or distribute this file
-    as long as the above copyright notice remains
- THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
- OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
- MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
- VALVANO SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
- OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
- For more information about my classes, my research, and my books, see
- http://users.ece.utexas.edu/~valvano/
- */
+// For copyright, configuration and usage read readme.txt
  
 // *******************************************************************************************************
 // ***************************************** Declaration section *****************************************
@@ -299,48 +279,6 @@ void OS_Signal(int32_t *semaPt){
 // ******************************************** FIFO section *********************************************
 // *******************************************************************************************************
 
-
-
-
-fifo_t Fifo_A[FSIZE];
-fifo_t Fifo_B[FSIZE];
-fifo_t Fifo_C[FSIZE];
-
-//------------------------------------------------------------------------------------------------------------
-
-enum fifos{					//main thread controll block
-  A = 0,
-  B,
-	C
-};
-
-typedef enum fifos fifos_t;
-
-#define FSIZE_A 10  // FIFO A size
-#define FSIZE_B 10  // FIFO B size
-#define FSIZE_C 10  // FIFO C size
-
-
-uint32_t PutI_A;    // index of where to put next
-uint32_t PutI_B;
-uint32_t PutI_C;
-
-uint32_t GetI_A;    // index of where to get next
-uint32_t GetI_B;
-uint32_t GetI_C;
-
-uint32_t FifoA[FSIZE_A];
-uint32_t FifoB[FSIZE_B];
-uint32_t FifoC[FSIZE_C];
-
-int32_t CurrentSize_A;// 0 means FIFO empty, FSIZE means full
-int32_t CurrentSize_B;
-int32_t CurrentSize_C;
-
-uint32_t LostData_A;  // number of lost pieces of data
-uint32_t LostData_B;
-uint32_t LostData_C;
-
 // ******** OS_FIFO_Init ************
 // Initialize FIFO.  
 // One event thread producer, one main thread consumer
@@ -350,30 +288,8 @@ void OS_FIFO_Init(fifo_t *fifo){ //Init the FIFO with indexes and CurrentSize an
 	fifo->PutI = 0;
 	fifo->GetI = 0;
 	OS_InitSemaphore(&fifo->CurrentSize,0);
+	OS_InitSemaphore(&fifo->Mutex, 1);
 }
-	/*switch((uint8_t)x) {
-		case (A):
-			PutI_A = 0;
-			GetI_A = 0;
-			OS_InitSemaphore(&CurrentSize_A,0);
-			break;
-		case (B):
-			PutI_B = 0;
-			GetI_B = 0;
-			OS_InitSemaphore(&CurrentSize_B,0);
-			break;
-		case (C):
-			PutI_C = 0;
-			GetI_C = 0;
-			OS_InitSemaphore(&CurrentSize_C,0);
-			break;
-		default:
-			PutI_A = 0;
-			GetI_A = 0;
-			OS_InitSemaphore(&CurrentSize_A,0);
-			break;		
-	}
-}*/
 
 // ******** OS_FIFO_Put ************
 // Put an entry in the FIFO.  
@@ -393,40 +309,19 @@ int OS_FIFO_Put(fifo_t *fifo,uint32_t data){
 		return 0;	//Success
 	}
 }
-	/*	switch((uint8_t)x) {
-		case (A):
-			if(CurrentSize_A == FSIZE_A) { //FIFO is full
-				LostData_A++;
-				return -1; //Error
-			}
-			else {
-				FifoA[PutI_A] = data;	//store data in FIFO at put index
-				PutI_A = (PutI_A + 1)%FSIZE_A; //Increment Put index and wrap around if necessary
-				OS_Signal(&CurrentSize_A);
-				return 0;	//Success
-			}
-		case (B):
-			if(CurrentSize_B == FSIZE_B) { //FIFO is full
-				LostData_B++;
-				return -1; //Error
-			}
-			else {
-				FifoB[PutI_B] = data;	//store data in FIFO at put index
-				PutI_B = (PutI_B + 1)%FSIZE_B; //Increment Put index and wrap around if necessary
-				OS_Signal(&CurrentSize_A);
-				return 0;	//Success
-			}			
-}*/
 
 // ******** OS_FIFO_Get ************
 // Get an entry from the FIFO.   
-// Exactly one main thread get,
+// one or more main thread get,
 // do block if empty
 // Inputs:  none
 // Outputs: data retrieved
 uint32_t OS_FIFO_Get(fifo_t *fifo){uint32_t data;
 	OS_Wait(&fifo->CurrentSize);		//Wait till there is data in FIFO, block if empty
+	OS_Wait(&fifo->Mutex);		//Block access to FIFO for other main threads
 	data = fifo->Fifo[fifo->GetI];	//Get stored data from Fifo
 	fifo->GetI = (fifo->GetI + 1) % FSIZE;	//Incremet Get index and wrap around
+	OS_Signal(&fifo->Mutex);		//Free access to FIFO for other main threads
   return data;
 }
+//EOF
