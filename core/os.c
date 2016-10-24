@@ -29,6 +29,7 @@ struct tcb{					//main thread controll block
   struct tcb *next; // linked-list pointer
 	int32_t *blocked;	// pointer to blocked semaphore, nonzero if blocked on this semaphore
 	int32_t sleep;		// time to sleep, nonzero if this thread is sleeping
+	uint8_t	priority;	//priority of the main thread 0 - highest, 254 - lowest
 };
 typedef struct tcb tcbType;
 tcbType tcbs[NUMTHREADS];
@@ -195,13 +196,31 @@ void OS_Launch(uint32_t theTimeSlice){
 
 /*ssOS - Scheduler*/
 void Scheduler(void){ // every time slice
-	// ROUND ROBIN, skip blocked and sleeping threads
-	RunPt = RunPt->next;  // Round Robin point to next thread
+	//1.1 Priority scheduler, run highest priority that is not sleeping or blocked
+	//If all are at equal priority round robin will be used
+	//1.0 ROUND ROBIN, skip blocked and sleeping threads a
+	
+  uint32_t max = 255; // max
+  tcbType *tempPt;
+  tcbType *bestPt;
+  tempPt = RunPt;         // search for highest thread not blocked or sleeping
+	
+	do{
+		tempPt = tempPt->next;    // skips at least one
+    if((tempPt->priority < max)&&((tempPt->blocked)==0)&&((tempPt->sleep)==0)){
+      max = tempPt->priority;
+      bestPt = tempPt;
+    }
+  } while(RunPt != tempPt); // circle around the TB circular list to look at all possible threads
+	RunPt = bestPt;
+}	
+	
+	/*RunPt = RunPt->next;  // Round Robin point to next thread
 	//If next thread is blocked or sleeping, search to the list untill the first unblocked thread
 	while((RunPt->blocked != 0)||(RunPt->sleep != 0)){
 		RunPt = RunPt->next;
 	}
-}
+}*/
 
 //******** OS_Suspend ***************
 // Called by main thread to cooperatively suspend operation
