@@ -12,6 +12,7 @@
 #include "os.h"
 #include "CortexM.h"
 #include "BSP.h"
+#include <os_cfg.h>
 
 // function definitions in osasm.s
 void StartOS(void);
@@ -19,30 +20,6 @@ void StartOS(void);
 // function definitions in os.c
 void static runperiodicevents(void);
 void static runsleep(void);
-
-#define NUMTHREADS  6        // number of main threads
-#define NUMPERIODIC 2        // maximum number of periodic threads
-#define STACKSIZE   100      // number of 32-bit words in stack per thread
-
-struct tcb{					//main thread controll block
-  int32_t *sp;      // pointer to stack (valid for threads not running
-  struct tcb *next; // linked-list pointer
-	int32_t *blocked;	// pointer to blocked semaphore, nonzero if blocked on this semaphore
-	int32_t sleep;		// time to sleep, nonzero if this thread is sleeping
-	uint8_t	priority;	//priority of the main thread 0 - highest, 254 - lowest
-};
-typedef struct tcb tcbType;
-tcbType tcbs[NUMTHREADS];
-tcbType *RunPt;
-int32_t Stacks[NUMTHREADS][STACKSIZE];
-
-struct ptcb{	//periodic thread controll block
-	void (*task)(void);
-	uint32_t period;
-	uint32_t counter;
-};
-typedef struct ptcb ptcbType;
-ptcbType PerTask[NUMPERIODIC];
 
 // *******************************************************************************************************
 // ******************************************* OS Init section *******************************************
@@ -58,8 +35,8 @@ void OS_Init(void){
   // perform any initializations needed
   DisableInterrupts();
   BSP_Clock_InitFastest();// set processor clock to fastest speed
-  BSP_PeriodicTask_Init(runperiodicevents,1000,2);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 2
-  BSP_PeriodicTask_InitB(runsleep,1000,3);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 3
+  BSP_PeriodicTask_Init(runperiodicevents,1000,INT_PRIO_PERIODIC_EV);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 2
+  BSP_PeriodicTask_InitB(runsleep,1000,INT_PRIO_SLEEP);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 3
 	//Periodic tasks / events / interrupts priority number: 
 	//0 = highest priority ... 7 = lowest priority
 }
@@ -70,20 +47,20 @@ void SetInitialStack(int i){
   //fill in bottom positions of the stack with register values, as if thread was already running and interrupted
   Stacks[i][STACKSIZE-1] = 0x01000000;   // thumb bit
   //Stacks[i][STACKSIZE-2] = PC; //The Program Counter will be set later with the address of the function it points to, R15 = PC
-  Stacks[i][STACKSIZE-3] = 0x14141414;   // R14 Initial Link Register dummy value, R14 = LR
-  Stacks[i][STACKSIZE-4] = 0x12121212;   // R12
-  Stacks[i][STACKSIZE-5] = 0x03030303;   // R3
-  Stacks[i][STACKSIZE-6] = 0x02020202;   // R2
-  Stacks[i][STACKSIZE-7] = 0x01010101;   // R1
-  Stacks[i][STACKSIZE-8] = 0x00000000;   // R0
-  Stacks[i][STACKSIZE-9] = 0x11111111;   // R11
-  Stacks[i][STACKSIZE-10] = 0x10101010;  // R10
+  Stacks[i][STACKSIZE-3] = 0x14141414;  //R14 Initial Link Register dummy value, R14 = LR
+  Stacks[i][STACKSIZE-4] = 0x12121212;  //R12
+  Stacks[i][STACKSIZE-5] = 0x03030303;  //R3
+	Stacks[i][STACKSIZE-6] = 0x02020202;  //R2
+  Stacks[i][STACKSIZE-7] = 0x01010101;  //R1
+  Stacks[i][STACKSIZE-8] = 0x00000000;  //R0
+  Stacks[i][STACKSIZE-9] = 0x11111111;  //R11
+  Stacks[i][STACKSIZE-10] = 0x10101010;  //R10
   Stacks[i][STACKSIZE-11] = 0x09090909;  // R9
   Stacks[i][STACKSIZE-12] = 0x08080808;  // R8
-  Stacks[i][STACKSIZE-13] = 0x07070707;  // R7
-  Stacks[i][STACKSIZE-14] = 0x06060606;  // R6
-  Stacks[i][STACKSIZE-15] = 0x05050505;  // R5
-  Stacks[i][STACKSIZE-16] = 0x04040404;  // R4
+  Stacks[i][STACKSIZE-13] = 0x07070707;  //R7
+  Stacks[i][STACKSIZE-14] = 0x06060606;  //R6
+  Stacks[i][STACKSIZE-15] = 0x05050505;  //R5
+  Stacks[i][STACKSIZE-16] = 0x04040404;  //R4
 }
 
 //******** OS_AddThreads ***************
@@ -91,12 +68,14 @@ void SetInitialStack(int i){
 // Inputs: function pointers to void/void main threads
 // Outputs: 1 if successful, 0 if this thread can not be added
 // This function will only be called once, after OS_Init and before OS_Launch
-int OS_AddThreads(void(*thread0)(void),
-                  void(*thread1)(void),
-                  void(*thread2)(void),
-                  void(*thread3)(void),
-                  void(*thread4)(void),
-                  void(*thread5)(void)){
+int OS_AddThreads(void(*thread0)(void), uint32_t p0,
+                  void(*thread1)(void), uint32_t p1,
+                  void(*thread2)(void), uint32_t p2,
+                  void(*thread3)(void), uint32_t p3,
+                  void(*thread4)(void), uint32_t p4,
+                  void(*thread5)(void), uint32_t p5,
+                  void(*thread6)(void), uint32_t p6,
+                  void(*thread7)(void), uint32_t p7){
   int32_t status; //I bit status
   int32_t i;	//thread index
   status = StartCritical(); //Disable Interrupts
@@ -107,7 +86,9 @@ int OS_AddThreads(void(*thread0)(void),
 	tcbs[2].next = &tcbs[3];	//main thread 2 points to main thread 3	
 	tcbs[3].next = &tcbs[4];	//main thread 3 points to main thread 4
 	tcbs[4].next = &tcbs[5];	//main thread 4 points to main thread 5
-	tcbs[5].next = &tcbs[0];	//main thread 5 points to main thread 0				
+	tcbs[5].next = &tcbs[6];	//main thread 5 points to main thread 6
+	tcbs[6].next = &tcbs[7];	//main thread 6 points to main thread 7
+	tcbs[7].next = &tcbs[0];	//main thread 7 points to main thread 8
 	
 	//initialize threads as not blocked									
 	for(i=0; i< NUMTHREADS; i++){tcbs[i].blocked = 0;}
@@ -128,49 +109,23 @@ int OS_AddThreads(void(*thread0)(void),
 	Stacks[4][STACKSIZE-2] = (int32_t)(thread4);	//Set address of thread4 as PC
 	SetInitialStack(5);	//SetInitialStack initial stack of main thread 5
 	Stacks[5][STACKSIZE-2] = (int32_t)(thread5);	//Set address of thread5 as PC	
+	SetInitialStack(6);	//SetInitialStack initial stack of main thread 6
+	Stacks[6][STACKSIZE-2] = (int32_t)(thread6);	//Set address of thread5 as PC	
+	SetInitialStack(7);	//SetInitialStack initial stack of main thread 6
+	Stacks[7][STACKSIZE-2] = (int32_t)(thread7);	//Set address of thread5 as PC	
 	
-  EndCritical(status);
-  return 1;               // successful
-}
-
-//******** OS_AddPeriodicEventThread ***************
-// Add one background periodic event thread
-// Typically this function receives the highest priority
-// Inputs: pointer to a void/void event thread function
-//         period given in units of OS_Launch (in this setup 1ms)
-// Outputs: 1 if successful, 0 if this thread cannot be added
-// It is assumed that the event threads will run to completion and return
-// It is assumed the time to run these event threads is short compared to 1 msec
-// These threads cannot spin, block, loop, sleep, or kill
-// These threads can call OS_Signal
-int OS_AddPeriodicEventThread(void(*thread)(void), uint32_t period){
-	int32_t static event_number = 0;
-	PerTask[event_number].task = thread;
-	PerTask[event_number].period = period;
-	PerTask[event_number].counter = 1;
-	event_number++;
-  return 1;
-}
-
-void static runperiodicevents(void){
-// **RUN PERIODIC THREADS
-	int32_t i;
-	for (i=0;i<NUMPERIODIC;i++){	//search for periodic tasks
-		PerTask[i].counter--;
-		if(PerTask[i].counter == 0) { //it's time to launch a periodic task		
-			PerTask[i].task();
-			PerTask[i].counter = PerTask[i].period;	//reset
-		}
-	}
-}
-
-void static runsleep(void){
-// **DECREMENT SLEEP COUNTERS
-	int32_t i;
-	for (i=0;i<NUMTHREADS;i++){ if(tcbs[i].sleep != 0) {	//search for sleeping main threads
-			tcbs[i].sleep --;	//decrement sleep period by 1ms
-		}
-	}
+	//initialize priority for each thread
+	tcbs[0].priority = p0;
+	tcbs[1].priority = p1;
+	tcbs[2].priority = p2;
+	tcbs[3].priority = p3;
+	tcbs[4].priority = p4;
+	tcbs[5].priority = p5;
+	tcbs[6].priority = p6;
+	tcbs[7].priority = p7;
+	
+	EndCritical(status);	//Enable Interrupts
+	return 1;         // successful
 }
 
 //******** OS_Launch ***************
@@ -195,32 +150,25 @@ void OS_Launch(uint32_t theTimeSlice){
 // *******************************************************************************************************
 
 /*ssOS - Scheduler*/
-void Scheduler(void){ // every time slice
+void Scheduler(void){  // every time slice
 	//1.1 Priority scheduler, run highest priority that is not sleeping or blocked
 	//If all are at equal priority round robin will be used
 	//1.0 ROUND ROBIN, skip blocked and sleeping threads a
-	
-  uint32_t max = 255; // max
-  tcbType *tempPt;
-  tcbType *bestPt;
-  tempPt = RunPt;         // search for highest thread not blocked or sleeping
-	
+	uint32_t maxprio = 255;
+	tcbType *tempPt;
+	tcbType *bestPt;
+  tempPt = RunPt;         
+	// search for highest thread not blocked or sleeping
 	do{
-		tempPt = tempPt->next;    // skips at least one
-    if((tempPt->priority < max)&&((tempPt->blocked)==0)&&((tempPt->sleep)==0)){
-      max = tempPt->priority;
-      bestPt = tempPt;
-    }
-  } while(RunPt != tempPt); // circle around the TB circular list to look at all possible threads
-	RunPt = bestPt;
-}	
-	
-	/*RunPt = RunPt->next;  // Round Robin point to next thread
-	//If next thread is blocked or sleeping, search to the list untill the first unblocked thread
-	while((RunPt->blocked != 0)||(RunPt->sleep != 0)){
-		RunPt = RunPt->next;
-	}
-}*/
+		tempPt = tempPt->next;  //skips at least one
+		if(((tempPt->priority) < maxprio) && (tempPt->blocked == 0) && (tempPt->sleep == 0)) { 
+			//If priority is higher and not blocked and not sleeping
+			maxprio = tempPt->priority;
+			bestPt = tempPt;
+		}
+	} while (RunPt != tempPt); //search through all linked list
+	RunPt = bestPt; //move to next suitable thread
+}
 
 //******** OS_Suspend ***************
 // Called by main thread to cooperatively suspend operation
@@ -343,4 +291,58 @@ uint32_t OS_FIFO_Get(fifo_t *fifo){uint32_t data;
 	OS_Signal(&fifo->Mutex);		//Free access to FIFO for other main threads
   return data;
 }
+
+// *******************************************************************************************************
+// *************************************** Periodic events section ***************************************
+// *******************************************************************************************************
+
+// ******** OS_AddPeriodicEventThread ***********
+// Initialize periodic timer interrupt to signal
+// Must be called NUMPERIODIC times
+// Inputs:  semaphore to signal
+//          period in ms
+// priority level at INT_PRIO_PERIODIC_EV
+// Outputs: 1 if OK
+//          0 if ERROR
+int OS_AddPeriodicEventThread(int32_t *semaPt, uint32_t period){
+	//int32_t static event_number = 0;
+	if(Periodic_Event_Nr < NUMPERIODIC) {
+		OS_InitSemaphore(semaPt,0);	//AleGaa
+		PerTask[Periodic_Event_Nr].period = period;
+		PerTask[Periodic_Event_Nr].counter = STARTUP_DELAY;
+		Periodic_Event_Nr++;
+	}
+	else {
+		return 0;	//Number of added is > then nr of defined
+	}
+  return 1;
+}
+
+void static runsleep(void){
+// **DECREMENT SLEEP COUNTERS
+	uint8_t i;
+	for (i=0;i<NUMTHREADS;i++){ if(tcbs[i].sleep != 0) {	//search for sleeping main threads
+			tcbs[i].sleep --;	//decrement sleep period by 1ms
+		}
+	}
+}
+
+void static runperiodicevents(void){
+// **RUN PERIODIC THREADS
+	uint8_t i = 0;
+	uint8_t flag = 0;
+
+	for (i=0;i<Periodic_Event_Nr;i++){	//search for periodic tasks
+		PerTask[i].counter--;
+		if(PerTask[i].counter == 0) { //it's time to signal a semaphore to launch a periodic task		
+			OS_Signal(PerTask[i].semaphore);
+			PerTask[i].counter = PerTask[i].period;	//reset
+			flag = 1;
+		}
+	}
+	if(flag) {	//AleGaa check if necessary
+		OS_Suspend(); // run the scheduler
+	}
+}
+
 //EOF

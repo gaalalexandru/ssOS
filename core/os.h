@@ -8,18 +8,7 @@
 #define __OS_H  1
 
 #include <stdint.h>
-
-#define FSIZE 10  // general FIFO size
-
-struct fifo{
-	uint32_t Fifo[FSIZE];
-	uint32_t LostData;	
-	int32_t CurrentSize;
-	int32_t Mutex;
-	uint8_t PutI;
-	uint8_t GetI;
-};
-typedef struct fifo fifo_t;
+#include <os_cfg.h>
 
 // ******** OS_Init ************
 // Initialize operating system, disable interrupts
@@ -30,21 +19,24 @@ typedef struct fifo fifo_t;
 void OS_Init(void);
 
 //******** OS_AddThreads ***************
-// Add main threads to the scheduler
+// Add all threads to the scheduler
 // Inputs: function pointers to void/void main threads
+//         priorites for each main thread (0 highest)
 // Outputs: 1 if successful, 0 if this thread can not be added
 // This function will only be called once, after OS_Init and before OS_Launch
-int OS_AddThreads(void(*thread0)(void),
-                  void(*thread1)(void),
-                  void(*thread2)(void),
-                  void(*thread3)(void),
-                  void(*thread4)(void),
-                  void(*thread5)(void));
+int OS_AddThreads(void(*thread0)(void), uint32_t p0,
+                  void(*thread1)(void), uint32_t p1,
+                  void(*thread2)(void), uint32_t p2,
+                  void(*thread3)(void), uint32_t p3,
+                  void(*thread4)(void), uint32_t p4,
+                  void(*thread5)(void), uint32_t p5,
+                  void(*thread6)(void), uint32_t p6,
+                  void(*thread7)(void), uint32_t p7);
 
 //******** OS_AddPeriodicEventThread ***************
 // Add one background periodic event thread
 // Typically this function receives the highest priority
-// Inputs: pointer to a void/void event thread function
+// Inputs: pointer to a semaphore that signals periodic task can be launched
 //         period given in units of OS_Launch (Lab 3 this will be msec)
 // Outputs: 1 if successful, 0 if this thread cannot be added
 // It is assumed that the event threads will run to completion and return
@@ -52,7 +44,7 @@ int OS_AddThreads(void(*thread0)(void),
 // These threads cannot spin, block, loop, sleep, or kill
 // These threads can call OS_Signal
 // In Lab 3 this will be called exactly twice
-int OS_AddPeriodicEventThread(void(*thread)(void), uint32_t period);
+int OS_AddPeriodicEventThread(int32_t *semaPt, uint32_t period);
 
 //******** OS_Launch ***************
 // Start the scheduler, enable interrupts
