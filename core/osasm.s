@@ -34,12 +34,12 @@ StartOS
     LDR     R2, [R0]	; R2 = value of RunPt
     LDR     SP, [R2]	; new thread SP, SP = RunPt->stackPointer, load address of RunPt to R0
     POP     {R4-R11}	; restore regs r4-11
-    POP     {R0-R3}	; restore regs r0-3
+    POP     {R0-R3}		; restore regs r0-3
     POP     {R12}
     ADD     SP,SP,#4	; discard LR from initial stack, move to next element
-    POP     {LR}	; start location
+    POP     {LR}		; start location
     ADD     SP,SP,#4	; discard PSR, move to next element
-    CPSIE   I		; Enable interrupts at processor level
-    BX      LR		; start first thread
+    CPSIE   I			; Enable interrupts at processor level
+    BX      LR			; start first thread
     ALIGN
     END
