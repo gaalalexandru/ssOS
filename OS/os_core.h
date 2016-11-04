@@ -18,7 +18,7 @@
 //#define TARGET_MSP432
 
 #define NUMTHREADS  8  // maximum number of threads
-#define NUMPERIODIC 10 // maximum number of periodic threads
+#define NUMPERIODIC 2 // maximum number of periodic threads
 
 #define STACKSIZE   100      // number of 32-bit words in stack per thread
 #define FSIZE 10  // general FIFO size
@@ -36,7 +36,7 @@ struct tcb{  //main thread controll block
   struct tcb *next;  // linked-list pointer
 	int32_t *blocked;  //pointer to blocked semaphore, nonzero if blocked on this semaphore
 	int32_t sleep;  //time to sleep, nonzero if this thread is sleeping
-  uint32_t priority;  //priority of the thread, 0 - highest priority, 254 - lowest
+  uint8_t priority;  //priority of the thread, 0 - highest priority, 254 - lowest
 };
 typedef struct tcb tcbType;
 

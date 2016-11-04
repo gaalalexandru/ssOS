@@ -163,7 +163,7 @@ void Scheduler(void){  // every time slice
 	//1.1 Priority scheduler, run highest priority that is not sleeping or blocked
 	//If all are at equal priority round robin will be used
 	//1.0 ROUND ROBIN, skip blocked and sleeping threads a
-	uint32_t maxprio = 255;
+	uint8_t maxprio = 255;
 	tcbType *tempPt;
 	tcbType *bestPt;
   tempPt = RunPt;         
@@ -351,6 +351,7 @@ void static runperiodicevents(void){
 	}
 	if(flag) {	//AleGaa check if necessary
 		OS_Suspend(); // run the scheduler
+		flag = 0;
 	}
 }
 
