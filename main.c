@@ -13,7 +13,7 @@
 #ifdef TARGET_TM4C
 //TM4C specific code
 //#include "BSP_TM4C.h"
-#endif //TARGET_TM4C
+#endif //TARGT_TM4C
 
 
 #define THREADFREQ 1000   // frequency in Hz
@@ -41,9 +41,9 @@ extern ptcbType PerTask[NUMPERIODIC];
 void Task0(void){	//Periodic task0
   Count0 = 0;
   while(1){
-		OS_Wait(PerTask[0].semaphore);
+		OS_Wait(&PerTask[0].semaphore);
 		Count0++;
-    //Count0 = OS_FIFO_Get(&FifoA);
+		OS_FIFO_Put(&FifoA,Count0);
     Profile_Toggle0();    // toggle bit
 		//OS_Sleep(10);
   }
@@ -51,9 +51,8 @@ void Task0(void){	//Periodic task0
 void Task1(void){		//Periodic task1
   Count1 = 0;
   while(1){
-		OS_Wait(PerTask[1].semaphore);
-		Count1++;
-    //Count1 = OS_FIFO_Get(&FifoA);
+		OS_Wait(&PerTask[1].semaphore);
+    Count1 = OS_FIFO_Get(&FifoA);
     Profile_Toggle1();    // toggle bit
 		//OS_Sleep(50);
   }
@@ -61,10 +60,9 @@ void Task1(void){		//Periodic task1
 void Task2(void){		//AleGaa Will be edge trigered event task
   Count2 = 0;
   while(1){
-		Count2++;
-    //Count2 = OS_FIFO_Get(&FifoB);
+    Count2 = OS_FIFO_Get(&FifoA);
     Profile_Toggle2();    // toggle bit
-		OS_Sleep(100);
+		OS_Sleep(20);
   }
 }
 void Task3(void){	//Syncronize task 3 with 4
@@ -122,12 +120,12 @@ int main(void){
   OS_Init();            // initialize, disable interrupts
   Profile_Init();       // enable digital I/O on profile pins
 	
-	OS_AddPeriodicEventThread(PerTask[0].semaphore, 10);
-	OS_AddPeriodicEventThread(PerTask[1].semaphore, 20);
+	OS_AddPeriodicEventThread(&PerTask[0].semaphore, 10);
+	OS_AddPeriodicEventThread(&PerTask[1].semaphore, 20);
 
   OS_AddThreads(&Task0,10, 
 	              &Task1, 20,
-	              &Task2, 50,
+	              &Task2, 20,
 	              &Task3, 50,
 	              &Task4, 150,
 	              &Task5, 150,
@@ -136,7 +134,7 @@ int main(void){
 
 	//OS_InitSemaphore(&Task34Sync,0);
 	//OS_InitSemaphore(&Task43Sync,0);
-	//OS_FIFO_Init(&FifoA);
+	OS_FIFO_Init(&FifoA);
 	//OS_FIFO_Init(&FifoB);
   OS_Launch(BSP_Clock_GetFreq()/THREADFREQ); // doesn't return, interrupts enabled in here
   return 0;             // this never executes

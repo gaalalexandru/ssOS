@@ -41,7 +41,7 @@ struct tcb{  //main thread controll block
 typedef struct tcb tcbType;
 
 struct ptcb{	//periodic thread controll block
-	int32_t *semaphore;
+	int32_t semaphore;
 	uint32_t period;
 	uint32_t counter;
 };

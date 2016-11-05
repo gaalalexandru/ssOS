@@ -344,7 +344,7 @@ void static runperiodicevents(void){
 	for (i=0;i<Periodic_Event_Nr;i++){	//search for periodic tasks
 		PerTask[i].counter--;
 		if(PerTask[i].counter == 0) { //it's time to signal a semaphore to launch a periodic task		
-			OS_Signal(PerTask[i].semaphore);
+			OS_Signal(&PerTask[i].semaphore);
 			PerTask[i].counter = PerTask[i].period;	//reset
 			flag = 1;
 		}
