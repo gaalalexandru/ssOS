@@ -55,8 +55,19 @@ enum tm4c_ports {
 };
 typedef enum tm4c_ports	ports_t;
 
-#define GPIO_PORTF_CR_R         (*((volatile uint32_t *)0x40025524))
+#define GPIO_PORTA_LOCK_R       (*((volatile uint32_t *)0x40004520))
+#define GPIO_PORTA_CR_R         (*((volatile uint32_t *)0x40004524))
+#define GPIO_PORTB_LOCK_R       (*((volatile uint32_t *)0x40005520))
+#define GPIO_PORTB_CR_R         (*((volatile uint32_t *)0x40005524))
+#define GPIO_PORTC_LOCK_R       (*((volatile uint32_t *)0x40006520))
+#define GPIO_PORTC_CR_R         (*((volatile uint32_t *)0x40006524))
+#define GPIO_PORTD_LOCK_R       (*((volatile uint32_t *)0x40007520))
+#define GPIO_PORTD_CR_R         (*((volatile uint32_t *)0x40007524))
+#define GPIO_PORTE_LOCK_R       (*((volatile uint32_t *)0x40024520))
+#define GPIO_PORTE_CR_R         (*((volatile uint32_t *)0x40024524))
 #define GPIO_PORTF_LOCK_R       (*((volatile uint32_t *)0x40025520))
+#define GPIO_PORTF_CR_R         (*((volatile uint32_t *)0x40025524))
+
 
 #endif //TARGET_TM4C
 

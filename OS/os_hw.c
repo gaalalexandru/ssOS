@@ -39,10 +39,14 @@ void GPIOPortD_Handler(void){	 //PortD Edge GPIO interrupt handler
 		GPIOIntClear(GPIO_PORTD_BASE,GPIO_INT_PIN_4); GPIOIntDisable(GPIO_PORTD_BASE, GPIO_INT_PIN_4); OS_Signal(&SemPortD.pin4);}
 	if(status & GPIO_INT_PIN_5) {
 		GPIOIntClear(GPIO_PORTD_BASE,GPIO_INT_PIN_5); GPIOIntDisable(GPIO_PORTD_BASE, GPIO_INT_PIN_5); OS_Signal(&SemPortD.pin5);}
-	if(status & GPIO_INT_PIN_6) {
-		GPIOIntClear(GPIO_PORTD_BASE,GPIO_INT_PIN_6); GPIOIntDisable(GPIO_PORTD_BASE, GPIO_INT_PIN_6); OS_Signal(&SemPortD.pin6);}
-	if(status & GPIO_INT_PIN_7) {		
-		GPIOIntClear(GPIO_PORTD_BASE,GPIO_INT_PIN_7); GPIOIntDisable(GPIO_PORTD_BASE, GPIO_INT_PIN_7); OS_Signal(&SemPortD.pin7);}
+	if(status == GPIO_INT_PIN_6) {
+		GPIOIntDisable(GPIO_PORTD_BASE, GPIO_INT_PIN_6);		
+		GPIOIntClear(GPIO_PORTD_BASE,GPIO_INT_PIN_6); 
+		OS_Signal(&SemPortD.pin6); }
+	if(status == GPIO_INT_PIN_7) {		
+		GPIOIntClear(GPIO_PORTD_BASE,GPIO_INT_PIN_7); 
+		GPIOIntDisable(GPIO_PORTD_BASE, GPIO_INT_PIN_7); 
+		OS_Signal(&SemPortD.pin7);}
 	//IntDisable(INT_GPIOD);  
   OS_Suspend();
 }
@@ -84,16 +88,21 @@ uint8_t OS_EdgeTrigger_Init(ports_t port, uint8_t pin, uint8_t priority, uint8_t
 	uint32_t bit_prio;
 	switch (port) {
 		case PortA:  //PortA 
+			//Need to unlock
+			GPIO_PORTA_LOCK_R = 0x4C4F434B;  //Unlock GPIO Port D
+			GPIO_PORTA_CR_R |= 0xFF;  //Allow changes to PD7-0
 			break;
 		case PortB:  //PortB
+			//Need to unlock
 			break;
 		case PortC:  //PortC
+			//Need to unlock
 			break;
 		case PortD:  //PortD	
 			SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
 			while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOD));
-			//if(pin == Pin0) { GPIO_PORTD_LOCK_R = 0x4C4F434B; } //Unlock PortF PF0 	//AleGaa
-			//GPIO_PORTD_CR_R |= 0x1F;  //Allow changes 	//AleGaa
+			GPIO_PORTD_LOCK_R = 0x4C4F434B;  //Unlock GPIO Port D
+			GPIO_PORTD_CR_R |= 0xFF;  //Allow changes to PD7-0
 			IntDisable(INT_GPIOD);
 			GPIOIntDisable(GPIO_PORTD_BASE,pin);
 			GPIOPinTypeGPIOInput(GPIO_PORTD_BASE, pin);
@@ -109,7 +118,7 @@ uint8_t OS_EdgeTrigger_Init(ports_t port, uint8_t pin, uint8_t priority, uint8_t
 		case PortF:  //PortF*/
 			SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);	//Enable clock on port F
 			while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF));
-			if(pin == Pin0) { GPIO_PORTF_LOCK_R = 0x4C4F434B; } //Unlock PortF PF0
+			if(pin == Pin0) { GPIO_PORTF_LOCK_R = 0x4C4F434B; } //Unlock GPIO Port F
 			GPIO_PORTF_CR_R |= 0x1F;  //Allow changes to PF4-0
 			IntDisable(INT_GPIOF);  //GPIO Port F disable of interrupts
 			GPIOIntDisable(GPIO_PORTF_BASE,pin);  //Disable GPIO pin interrupt

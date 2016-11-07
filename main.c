@@ -58,9 +58,11 @@ void Task2(void){		//Edge triggered task1
   Count2 = 0;
   while(1){
 		OS_Wait(&SemPortD.pin6); // signaled in OS on button touch
-		Count2 ++;
-		Profile_Toggle2();
+		//OS_Sleep(200);
+    Profile_Toggle2();
+		Count2++;
 		OS_Signal(&Task23Semaphore);
+		//OS_EdgeTrigger_Restart(PortD,Pin6);
   }
 }
 void Task3(void){	 //response to task1
@@ -121,8 +123,8 @@ int main(void){
 	
 	OS_FIFO_Init(&FifoA);
 	
-	OS_EdgeTrigger_Init(PortD,Pin7,0,0,0x0A);
-	OS_EdgeTrigger_Init(PortD,Pin6,0,0,0x0A);
+	OS_EdgeTrigger_Init(PortD,Pin7,0,0,0x0000000A);
+	OS_EdgeTrigger_Init(PortD,Pin6,0,0,0x0000000A);
 	
 	OS_AddPeriodicEventThread(&PerTask[0].semaphore, 10);
 	OS_AddPeriodicEventThread(&PerTask[1].semaphore, 20);
