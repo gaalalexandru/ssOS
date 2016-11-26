@@ -59,19 +59,19 @@ void Task2(void){		//Edge triggered task1
   while(1){
 		OS_Wait(&SemPortD.pin6); // signaled in OS on button touch
 		//OS_Sleep(200);
-    Profile_Toggle2();
+    //Profile_Toggle2();
 		Count2++;
 		OS_Signal(&Task23Semaphore);
 		//OS_EdgeTrigger_Restart(PortD,Pin6);
   }
 }
-void Task3(void){	 //response to task1
+void Task3(void){	 //response to task2
   Count3 = 0;
   while(1){
 		OS_Wait(&Task23Semaphore);
 		Count3++;
+		OS_Sleep(30); //sleep to debounce switch
     Profile_Toggle3();
-		OS_Sleep(20); //sleep to debounce switch
 		OS_EdgeTrigger_Restart(PortD,Pin6);
   }
 }
