@@ -151,7 +151,7 @@
 // J4.35 nothing                         {TM4C123 PC6, MSP432 P6.7}
 
 #include <stdint.h>
-#include "BSP.h"
+#include "BSP_TM4C.h"
 #include "../inc/tm4c123gh6pm.h"
 
 void DisableInterrupts(void); // Disable interrupts

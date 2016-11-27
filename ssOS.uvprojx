@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>rvmdk PART_TM4C123GH6PM TARGET_IS_TM4C123_RA1</Define>
               <Undefine></Undefine>
-              <IncludePath>.\inc;.\core;.\3rd_party</IncludePath>
+              <IncludePath>.\inc;.\OS;.\3rd_party;..\TivaWare_C_Series-2.1.1.71;..\TivaWare_C_Series-2.1.1.71</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -377,17 +377,22 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>core</GroupName>
+          <GroupName>OS</GroupName>
           <Files>
             <File>
-              <FileName>os.c</FileName>
+              <FileName>os_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\core\os.c</FilePath>
+              <FilePath>.\OS\os_core.c</FilePath>
             </File>
             <File>
               <FileName>osasm.s</FileName>
               <FileType>2</FileType>
-              <FilePath>.\core\osasm.s</FilePath>
+              <FilePath>.\OS\osasm.s</FilePath>
+            </File>
+            <File>
+              <FileName>os_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\OS\os_hw.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -405,14 +410,14 @@
           <GroupName>3rd_party</GroupName>
           <Files>
             <File>
-              <FileName>BSP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\3rd_party\BSP.c</FilePath>
-            </File>
-            <File>
               <FileName>Profile.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\3rd_party\Profile.c</FilePath>
+            </File>
+            <File>
+              <FileName>BSP_TM4C.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\3rd_party\BSP_TM4C.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -423,6 +428,16 @@
               <FileName>readme.txt</FileName>
               <FileType>5</FileType>
               <FilePath>.\readme.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>driverlib</GroupName>
+          <Files>
+            <File>
+              <FileName>driverlib.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\TivaWare_C_Series-2.1.1.71\driverlib\rvmdk\driverlib.lib</FilePath>
             </File>
           </Files>
         </Group>

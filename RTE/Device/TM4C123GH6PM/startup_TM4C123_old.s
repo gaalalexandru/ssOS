@@ -24,7 +24,13 @@
 ;/*
 ;//-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
 ;*/
-
+; Edited to conform with ISR names as described in 
+;   "Embedded Systems: Introduction to ARM Cortex M Microcontrollers",
+;   ISBN: 978-1469998749, Jonathan Valvano, copyright (c) 2016
+;   "Embedded Systems: Real Time Interfacing to ARM Cortex M Microcontrollers",
+;   ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2016
+;   "Embedded Systems: Real-Time Operating Systems for ARM Cortex M Microcontrollers",
+;   ISBN: 978-1466468863, Jonathan Valvano, copyright (c) 2016
 
 ; <h> Stack Configuration
 ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
@@ -61,21 +67,21 @@ __heap_limit
                 EXPORT  __Vectors_Size
 
 __Vectors       DCD     __initial_sp              ; Top of Stack
-                DCD     Reset_Handler               ; Reset Handler
-				DCD     NMI_Handler                 ; NMI Handler
-				DCD     HardFault_Handler           ; Hard Fault Handler
-				DCD     MemManage_Handler           ; MPU Fault Handler
-				DCD     BusFault_Handler            ; Bus Fault Handler
-				DCD     UsageFault_Handler          ; Usage Fault Handler
-				DCD     0                           ; Reserved
-				DCD     0                           ; Reserved
-				DCD     0                           ; Reserved
-				DCD     0                           ; Reserved
-				DCD     SVC_Handler                 ; SVCall Handler
-				DCD     DebugMon_Handler            ; Debug Monitor Handler
-				DCD     0                           ; Reserved
-				DCD     PendSV_Handler              ; PendSV Handler
-				DCD     SysTick_Handler             ; SysTick Handler
+                DCD     Reset_Handler             ; Reset Handler
+                DCD     NMI_Handler               ; NMI Handler
+                DCD     HardFault_Handler         ; Hard Fault Handler
+                DCD     MemManage_Handler         ; MPU Fault Handler
+                DCD     BusFault_Handler          ; Bus Fault Handler
+                DCD     UsageFault_Handler        ; Usage Fault Handler
+                DCD     0                         ; Reserved
+                DCD     0                         ; Reserved
+                DCD     0                         ; Reserved
+                DCD     0                         ; Reserved
+                DCD     SVC_Handler               ; SVCall Handler
+                DCD     DebugMon_Handler          ; Debug Monitor Handler
+                DCD     0                         ; Reserved
+                DCD     PendSV_Handler            ; PendSV Handler
+                DCD     SysTick_Handler           ; SysTick Handler
 
                 ; External Interrupts
 
@@ -226,47 +232,20 @@ __Vectors_Size  EQU     __Vectors_End - __Vectors
                 AREA    |.text|, CODE, READONLY
 
 
-;******************************************************************************
-;
-; This is the code that gets called when the processor first starts execution
-; following a reset event.
-;
-;******************************************************************************
+; Reset Handler
 
-        EXPORT  Reset_Handler
-Reset_Handler
-        ;
-        ; Enable the floating-point unit.  This must be done here to handle the
-        ; case where main() uses floating-point and the function prologue saves
-        ; floating-point registers (which will fault if floating-point is not
-        ; enabled).  Any configuration of the floating-point unit using
-        ; DriverLib APIs must be done here prior to the floating-point unit
-        ; being enabled.
-        ;
-        ; Note that this does not use DriverLib since it might not be included
-        ; in this project.
-        ;
-        MOVW    R0, #0xED88
-        MOVT    R0, #0xE000
-        LDR     R1, [R0]
-        ORR     R1, #0x00F00000
-        STR     R1, [R0]
+Reset_Handler   PROC
+                EXPORT  Reset_Handler             [WEAK]
+;                IMPORT  SystemInit
+                IMPORT  __main
+;                LDR     R0, =SystemInit
+;                BLX     R0
+                LDR     R0, =__main
+                BX      R0
+                ENDP
 
-        ;
-        ; Call the C library enty point that handles startup.  This will copy
-        ; the .data section initializers from flash to SRAM and zero fill the
-        ; .bss section.
-        ;
-        IMPORT  __main
-        B       __main
 
-;******************************************************************************
-;
-; This is the code that gets called when the processor receives a NMI.  This
-; simply enters an infinite loop, preserving the system state for examination
-; by a debugger.
-;
-;******************************************************************************
+; Dummy Exception Handlers (infinite loops which can be modified)
 
 NMI_Handler     PROC
                 EXPORT  NMI_Handler               [WEAK]
@@ -552,14 +531,24 @@ PWM1Generator3_Handler
 PWM1Fault_Handler
 
                 B       .
-
                 ENDP
+
+                ALIGN
+
 ;******************************************************************************
 ;
 ; Make sure the end of this section is aligned.
 ;
 ;******************************************************************************
-                ALIGN
+        ALIGN
+
+;******************************************************************************
+;
+; Some code in the normal code section for initializing the heap and stack.
+;
+;******************************************************************************
+        AREA    |.text|, CODE, READONLY
+
 ;******************************************************************************
 ;
 ; Useful functions.

@@ -5,7 +5,7 @@
 //   forming a bridge between the low-level hardware and the high-level software.
 
 // Daniel and Jonathan Valvano
-// June 8, 2016
+// June 7, 2016
 
 /* This example accompanies the books
    "Embedded Systems: Introduction to the MSP432 Microcontroller",
@@ -626,53 +626,40 @@ void BSP_PeriodicTask_Init(void(*task)(void), uint32_t freq, uint8_t priority);
 // ------------BSP_PeriodicTask_Stop------------
 // Deactivate the interrupt running a user task
 // periodically.
-// The automatic grader in TExaS calls this function and
-// uses this hardware.  Do not call this function if using
-// the automatic grader.
 // Input: none
 // Output: none
 void BSP_PeriodicTask_Stop(void);
 
-// ------------BSP_PeriodicTask_Restart------------
-// Reactivate the interrupt running a user task periodically.
-// Input: none
-// Output: none
-void BSP_PeriodicTask_Restart(void);
-
-// ------------BSP_PeriodicTask_InitB------------
-// Activate an interrupt to run a user task periodically.
-// Give it a priority 0 to 6 with lower numbers
-// signifying higher priority.  Equal priority is
-// handled sequentially.
+// ***************** BSP_PeriodicTask_InitB ****************
+// Activate 16-bit Timer A1 interrupts to run user task periodically
+// assumes SMCLK is 12MHz, using divide by 24, 500kHz/65536=7.6 Hz
 // Input:  task is a pointer to a user function
 //         freq is number of interrupts per second
-//           1 Hz to 10 kHz
+//           8 Hz to 10 kHz
 //         priority is a number 0 to 6
-// Output: none
+// Outputs: none
+// comment: it is accurate if 500000/freq is an integer
 void BSP_PeriodicTask_InitB(void(*task)(void), uint32_t freq, uint8_t priority);
- 
+
 // ------------BSP_PeriodicTask_StopB------------
-// Deactivate the interrupt running a user task
-// periodically.
+// Deactivate the interrupt running a user task periodically.
 // Input: none
 // Output: none
 void BSP_PeriodicTask_StopB(void);
 
-// ------------BSP_PeriodicTask_InitC------------
-// Activate an interrupt to run a user task periodically.
-// Give it a priority 0 to 6 with lower numbers
-// signifying higher priority.  Equal priority is
-// handled sequentially.
+// ***************** BSP_PeriodicTask_InitC ****************
+// Activate 16-bit Timer A2 interrupts to run user task periodically
+// assumes SMCLK is 12MHz, using divide by 24, 500kHz/65536=7.6 Hz
 // Input:  task is a pointer to a user function
 //         freq is number of interrupts per second
-//           1 Hz to 10 kHz
+//           8 Hz to 10 kHz
 //         priority is a number 0 to 6
-// Output: none
+// Outputs: none
+// comment: it is accurate if 500000/freq is an integer
 void BSP_PeriodicTask_InitC(void(*task)(void), uint32_t freq, uint8_t priority);
 
 // ------------BSP_PeriodicTask_StopC------------
-// Deactivate the interrupt running a user task
-// periodically.
+// Deactivate the interrupt running a user task periodically.
 // Input: none
 // Output: none
 void BSP_PeriodicTask_StopC(void);
