@@ -8,7 +8,8 @@
 #include "os_core.h"
 #include "os_hw.h"
 #include "profile.h"
-//#include "../inc/tm4c123gh6pm.h"
+//#include "../inc/tm4c123gh6pm.h"  //AleGaa not needed at the moment
+#include "driverlib/gpio.h"
 
 #define THREADFREQ 1000   // frequency in Hz
 
@@ -24,9 +25,6 @@ uint32_t CountIdle;   // number of times Idle_Task loops
 
 fifo_t FifoA;
 
-int32_t Task23Semaphore;
-int32_t Task45Semaphore;
-
 extern ptcbType PerTask[NUMPERIODIC];
 
 extern PortSema_t SemPortA;
@@ -35,7 +33,7 @@ extern PortSema_t SemPortC;
 extern PortSema_t SemPortD;
 extern PortSema_t SemPortE;
 extern PortSema_t SemPortF;
-
+uint8_t last1,last2;
 void Task0(void){	//Periodic task0 - 10 ms
   Count0 = 0;
   while(1){
@@ -51,48 +49,56 @@ void Task1(void){		//Periodic task1 - 20 ms
 		OS_Wait(&PerTask[1].semaphore);
     Count1 = OS_FIFO_Get(&FifoA);
     Profile_Toggle1();
-		Profile_Toggle3();
   }
 }
-void Task2(void){		//Edge triggered task1
+void Task2(void){		//Edge triggered task PF0
   Count2 = 0;
   while(1){
-		OS_Wait(&SemPortD.pin6); // signaled in OS on button touch
-		//OS_Sleep(200);
-    //Profile_Toggle2();
-		Count2++;
-		OS_Signal(&Task23Semaphore);
-		//OS_EdgeTrigger_Restart(PortD,Pin6);
-  }
+		OS_Wait(&SemPortF.pin0); // signaled in OS on button touch
+		OS_Sleep(50); //sleep to debounce switch		
+		if(!GPIOPinRead(GPIO_PORTF_BASE,GPIO_INT_PIN_0)) {   
+			Profile_Toggle2();
+			Count2++;
+		}
+		OS_EdgeTrigger_Restart(PortF,GPIO_PIN_0);
+	}
 }
-void Task3(void){	 //response to task2
+void Task3(void){	 //response to task PF4
   Count3 = 0;
   while(1){
-		OS_Wait(&Task23Semaphore);
-		Count3++;
-		OS_Sleep(30); //sleep to debounce switch
-    Profile_Toggle3();
-		OS_EdgeTrigger_Restart(PortD,Pin6);
-  }
-}
-void Task4(void){	 //Edge triggered task2
-  Count4 = 0;
-  while(1){
-		OS_Wait(&SemPortD.pin7); // signaled in OS on button touch
-		Count4++;
-    Profile_Toggle4();
-		OS_Signal(&Task45Semaphore);
-  }
+		OS_Wait(&SemPortF.pin4); // signaled in OS on button touch
+		OS_Sleep(50); //sleep to debounce switch		
+		if(!GPIOPinRead(GPIO_PORTF_BASE,GPIO_INT_PIN_4)) {   
+			Profile_Toggle3();
+			Count3++;
+		}
+		OS_EdgeTrigger_Restart(PortF,GPIO_PIN_4);
+	}
 }
 
-void Task5(void){	 //response to task2
+void Task4(void){	 //Edge triggered task PD6
+	Count4 = 0;
+  while(1){
+		OS_Wait(&SemPortD.pin6); // signaled in OS on button touch
+		OS_Sleep(50); //sleep to debounce switch		
+		if(!GPIOPinRead(GPIO_PORTD_BASE,GPIO_INT_PIN_6)) {   
+			Profile_Toggle4();
+			Count4++;
+		}
+		OS_EdgeTrigger_Restart(PortD,GPIO_PIN_6);
+	}
+}
+
+void Task5(void){	 //response to task PD7
 	Count5 = 0;
-	while(1){
-		OS_Wait(&Task45Semaphore);
-		Count5++;
-    Profile_Toggle3();
-		OS_Sleep(20); //sleep to debounce switch
-		OS_EdgeTrigger_Restart(PortD,Pin7);
+  while(1){
+		OS_Wait(&SemPortD.pin7); // signaled in OS on button touch
+		OS_Sleep(50); //sleep to debounce switch		
+		if(!GPIOPinRead(GPIO_PORTD_BASE,GPIO_INT_PIN_7)) {   
+			Profile_Toggle5();
+			Count5++;
+		}
+		OS_EdgeTrigger_Restart(PortD,GPIO_INT_PIN_7);
 	}
 }
 
@@ -116,25 +122,26 @@ int main(void){
 	OS_Init();            // initialize, disable interrupts
 	Profile_Init();       // enable digital I/O on profile pins
 	
-	OS_InitSemaphore(&Task23Semaphore,0);
-	OS_InitSemaphore(&Task45Semaphore,0);
 	OS_InitSemaphore(&SemPortD.pin6,0);
 	OS_InitSemaphore(&SemPortD.pin7,0);	
+	OS_InitSemaphore(&SemPortF.pin0,0);
+	OS_InitSemaphore(&SemPortF.pin4,0);	
 	
 	OS_FIFO_Init(&FifoA);
 	
-	OS_EdgeTrigger_Init(PortD,Pin7,0,0,0x0000000A);
-	OS_EdgeTrigger_Init(PortD,Pin6,0,0,0x0000000A);
+	OS_EdgeTrigger_Init(PortD,GPIO_PIN_6|GPIO_PIN_7,0,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
+	OS_EdgeTrigger_Init(PortF,GPIO_PIN_0|GPIO_PIN_4,0,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
+// OS_EdgeTrigger_Init( port,  pin,  priority,  type, resistor)
 	
 	OS_AddPeriodicEventThread(&PerTask[0].semaphore, 10);
 	OS_AddPeriodicEventThread(&PerTask[1].semaphore, 20);
 
   OS_AddThreads(&Task0,10, 
 	              &Task1, 20,
-	              &Task2, 50,
-	              &Task3, 50,
-	              &Task4, 150,
-	              &Task5, 150,
+	              &Task2, 5,
+	              &Task3, 5,
+	              &Task4, 5,
+	              &Task5, 5,
 	              &Task6, 250,
 	              &Idle_Task,254);	//Idle task is lowest priority
 	

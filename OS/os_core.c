@@ -316,7 +316,7 @@ uint32_t OS_FIFO_Get(fifo_t *fifo){uint32_t data;
 int OS_AddPeriodicEventThread(int32_t *semaPt, uint32_t period){
 	//int32_t static event_number = 0;
 	if(Periodic_Event_Nr < NUMPERIODIC) {
-		OS_InitSemaphore(semaPt,0);	//AleGaa
+		OS_InitSemaphore(semaPt,0);
 		PerTask[Periodic_Event_Nr].period = period;
 		PerTask[Periodic_Event_Nr].counter = STARTUP_DELAY;
 		Periodic_Event_Nr++;
@@ -349,7 +349,7 @@ void static runperiodicevents(void){
 			flag = 1;
 		}
 	}
-	if(flag) {	//AleGaa check if necessary
+	if(flag) {
 		OS_Suspend(); // run the scheduler
 		flag = 0;
 	}

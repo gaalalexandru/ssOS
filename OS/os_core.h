@@ -23,7 +23,7 @@
 #define STACKSIZE   100      // number of 32-bit words in stack per thread
 #define FSIZE 10  // general FIFO size
 
-#define STARTUP_DELAY 10  //AleGaa
+#define STARTUP_DELAY 10
 #define INT_PRIO_PERIODIC_EV (1)  //Timer interrupt priority for periodic events
 #define INT_PRIO_SLEEP (3)  //Timer interrupt priority for sleep decrementing
 

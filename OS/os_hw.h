@@ -8,6 +8,7 @@
 
 #include "os_core.h"
 
+/*
 #define	Pin0	(0x01)
 #define Pin1	(0x02)
 #define Pin2	(0x04)
@@ -16,6 +17,7 @@
 #define Pin5	(0x20)
 #define Pin6	(0x40)
 #define	Pin7	(0x80)
+*/
 
 struct port_sema {
 	int32_t pin0;
@@ -67,8 +69,7 @@ typedef enum tm4c_ports	ports_t;
 #define GPIO_PORTE_CR_R         (*((volatile uint32_t *)0x40024524))
 #define GPIO_PORTF_LOCK_R       (*((volatile uint32_t *)0x40025520))
 #define GPIO_PORTF_CR_R         (*((volatile uint32_t *)0x40025524))
-
-
+	
 #endif //TARGET_TM4C
 
 #ifdef TARGET_MSP432
