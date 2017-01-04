@@ -7,6 +7,14 @@ Versioning:
 		Periodic threads / events
 		FIFO
 		Main thread syncronization
+		
+1.1: New features added.
+		27.11.2016 - Gaal Alexandru
+		Priority scheduler implemented (replaced Round robin)
+		HW layer added in os_hw.c & os_hw.h
+		External event threads added by GPIO interrupts.
+		
+1.2: New timer handling, replaced BSP timer handling.
 
 Copyright & License:
 -----------------------------
