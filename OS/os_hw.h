@@ -46,6 +46,7 @@ typedef struct port_sema PortSema_t;
 #include "driverlib/pin_map.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/sysctl.h"
+#include "driverlib/timer.h"
 
 enum tm4c_ports {
 	PortA = 0,
@@ -56,6 +57,36 @@ enum tm4c_ports {
 	PortF
 };
 typedef enum tm4c_ports	ports_t;
+
+enum tm4c_timers {
+	Timer0A = 0, // 16/32 bit
+	Timer0B,
+	Timer1A,
+	Timer1B,
+	Timer2A,
+	Timer2B,
+	Timer3A,
+	Timer3B,
+	Timer4A,
+	Timer4B,
+	Timer5A,
+	Timer5B,
+	WTimer0A,  // 32/64 bit
+	WTimer0B,
+	WTimer1A,
+	WTimer1B,
+	WTimer2A,
+	WTimer2B,
+	WTimer3A,
+	WTimer3B,
+	WTimer4A,
+	WTimer4B,
+	WTimer5A,
+	WTimer5B
+};
+typedef enum tm4c_timers	timers_t;
+
+
 
 #define GPIO_PORTA_LOCK_R       (*((volatile uint32_t *)0x40004520))
 #define GPIO_PORTA_CR_R         (*((volatile uint32_t *)0x40004524))
@@ -86,7 +117,9 @@ typedef enum tm4c_ports	ports_t;
 #endif //TARGET_TM4C
 
 uint8_t OS_EdgeTrigger_Restart(ports_t port, uint8_t pin);
-uint8_t OS_EdgeTrigger_Init(ports_t port, uint8_t pin, uint8_t priority, uint8_t type, uint8_t resistor);	
+uint8_t OS_EdgeTrigger_Init(ports_t port, uint8_t pin, uint8_t priority, uint8_t type, uint8_t resistor);
+uint8_t OS_Clock_Init(uint8_t clock_Mhz);
+uint8_t OS_Timer_Init(timers_t timer, uint16_t freqency, uint8_t priority);
 #endif
 
 //EOF

@@ -43,9 +43,12 @@ uint8_t Periodic_Event_Nr = 0;	//Added Periodic events
 void OS_Init(void){
   // perform any initializations needed
   DisableInterrupts();
-  BSP_Clock_InitFastest();// set processor clock to fastest speed
-  BSP_PeriodicTask_Init(runperiodicevents,1000,INT_PRIO_PERIODIC_EV);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 2
-  BSP_PeriodicTask_InitB(runsleep,1000,INT_PRIO_SLEEP);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 3
+  OS_Clock_Init(80);
+	OS_Timer_Init(0,1000);
+	OS_Timer_Init(1,1000);
+	//BSP_Clock_InitFastest();// set processor clock to fastest speed
+  //BSP_PeriodicTask_Init(runperiodicevents,1000,INT_PRIO_PERIODIC_EV);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 2
+  //BSP_PeriodicTask_InitB(runsleep,1000,INT_PRIO_SLEEP);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 3
 	//Periodic tasks / events / interrupts priority number: 
 	//0 = highest priority ... 7 = lowest priority
 }

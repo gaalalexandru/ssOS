@@ -142,6 +142,94 @@ uint8_t OS_EdgeTrigger_Restart(ports_t port, uint8_t pin){
 	}
 	return 1;  //OK
 }
+
+// ******** OS_Clock_Init ************
+// init the system clock to the desired speed in Mhz
+// Inputs:  Desired frequency, MHz
+// Outputs: 1 if config is successfull, 0 if not
+uint8_t OS_Clock_Init(uint8_t clock_Mhz){
+	switch (clock_Mhz) {
+		case 16:  //16 MHz 
+			break;
+		case 80:  //80 MHz
+			break;
+		default:
+			return 0;  //error
+	}
+	return 1;  //OK
+}
+
+// ******** OS_Timer_Init ************
+// Init sesired system timer at desired frequency in Hz
+// Inputs:  Selected timer, Desired frequency, MHz
+// Outputs: 1 if config is successfull, 0 if not
+uint8_t OS_Timer_Init(timers_t timer, uint16_t freqency, uint8_t priority){
+	switch (timer) {
+		case Timer0A:
+			SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);	//Timer 0 enable
+			IntDisable(INT_TIMER0A);	//Timer 0A disable of interrupts
+			TimerIntDisable(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+	
+			TimerDisable(TIMER0_BASE, TIMER_A);	
+			TimerClockSourceSet(TIMER0_BASE, TIMER_CLOCK_SYSTEM);
+			TimerConfigure(TIMER0_BASE, TIMER_CFG_A_PERIODIC);
+	
+			TimerLoadSet(TIMER0_BASE, TIMER_A, TIMER_reload_calculator(50));	//Set cycle nr for 50 ms	
+			TimerEnable(TIMER0_BASE, TIMER_A);
+	
+			TimerIntEnable(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+			IntPrioritySet(INT_TIMER0A,(priority)<<5);	//Priority 0 = "000"0.0000
+			IntEnable(INT_TIMER0A);	//Timer 0A enable of interrupts	
+			break;
+		case Timer0B:
+		case Timer1A:
+		case Timer1B:
+		case Timer2A:
+		case Timer2B:
+		case Timer3A:
+		case Timer3B:
+		case Timer4A:
+		case Timer4B:
+		case Timer5A:
+		case Timer5B:
+		case WTimer0A:  // 32/64 bit
+			SysCtlPeripheralEnable(SYSCTL_PERIPH_WTIMER0);  //Wide Timer 0 enable 
+			IntDisable(INT_WTIMER0A);  //Wide Timer 0A disable of interrupts
+			TimerIntDisable(WTIMER0_BASE,TIMER_TIMA_TIMEOUT);
+	
+			TimerDisable(WTIMER0_BASE, TIMER_A);
+			TimerClockSourceSet(WTIMER0_BASE, TIMER_CLOCK_SYSTEM);
+			TimerConfigure(WTIMER0_BASE, TIMER_CFG_A_PERIODIC);
+
+			TimerLoadSet(WTIMER0_BASE, TIMER_A, TIMER_reload_calculatorx(1000));	//Set cycle nr for 1000 ms	
+			TimerEnable(WTIMER0_BASE, TIMER_A);
+	
+			TimerIntEnable(WTIMER0_BASE,TIMER_TIMA_TIMEOUT);
+			IntPrioritySet(INT_WTIMER0A,(priority)<<5);  //Priority 1 = "001"0.0000
+			IntEnable(INT_WTIMER0A);	//Wide Timer 0A enable of interrupts
+			break;
+		case WTimer0B:
+		case WTimer1A:
+		case WTimer1B:
+		case WTimer2A:
+		case WTimer2B:
+		case WTimer3A:
+		case WTimer3B:
+		case WTimer4A:
+		case WTimer4B:
+		case WTimer5A:
+		case WTimer5B:
+		default:
+			return 0;  //error
+	}
+	return 1;  //OK
+}
+
+
+
+
+
+
 #endif //TARGET_TM4C
 
 #ifdef TARGET_MSP432

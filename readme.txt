@@ -14,7 +14,10 @@ Versioning:
 		HW layer added in os_hw.c & os_hw.h
 		External event threads added by GPIO interrupts.
 		
-1.2: New timer handling, replaced BSP timer handling.
+1.2: Replaced BSP support
+		05.01.2017 - Gaal Alexandru
+		New clock init
+		New timer init & handling
 
 Copyright & License:
 -----------------------------
