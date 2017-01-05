@@ -145,7 +145,7 @@ int main(void){
 	              &Task6, 250,
 	              &Idle_Task,254);	//Idle task is lowest priority
 	
-  OS_Launch(BSP_Clock_GetFreq()/THREADFREQ); // doesn't return, interrupts enabled in here
+  OS_Launch(SysCtlClockGet()/THREADFREQ); // doesn't return, interrupts enabled in here
   return 0;             // this never executes
 }
 //EOF

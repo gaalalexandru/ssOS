@@ -29,6 +29,7 @@ tcbType *RunPt;  //Current thread Run Pointer
 int32_t Stacks[NUMTHREADS][STACKSIZE];  //Thread stacks
 ptcbType PerTask[NUMPERIODIC];  //Periodic events
 uint8_t Periodic_Event_Nr = 0;	//Added Periodic events
+void (*OS_PeriodicTask[NUM_OS_PERIODIC_TASK])(void);   //array of pointers to void functions, OS embedded periodic tasks, NOT used / application periodic tasks
 
 // *******************************************************************************************************
 // ******************************************* OS Init section *******************************************
@@ -43,14 +44,13 @@ uint8_t Periodic_Event_Nr = 0;	//Added Periodic events
 void OS_Init(void){
   // perform any initializations needed
   DisableInterrupts();
-  OS_Clock_Init(80);
-	OS_Timer_Init(0,1000);
-	OS_Timer_Init(1,1000);
-	//BSP_Clock_InitFastest();// set processor clock to fastest speed
-  //BSP_PeriodicTask_Init(runperiodicevents,1000,INT_PRIO_PERIODIC_EV);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 2
-  //BSP_PeriodicTask_InitB(runsleep,1000,INT_PRIO_SLEEP);	//Start one HW Timer with periodic interrupt at 1000 Hz set to priority 3
-	//Periodic tasks / events / interrupts priority number: 
-	//0 = highest priority ... 7 = lowest priority
+  OS_Clock_Init(80);  //Init clock at 80 Mhz
+	
+	OS_PeriodicTask[0] = runperiodicevents;  //periodic wait decrement funcion
+	OS_Timer_Init(Timer0A,1000,INT_PRIO_PERIODIC_EV);
+
+	OS_PeriodicTask[1] = runsleep;  //sleep decrement funcion
+	OS_Timer_Init(Timer1A,1000,INT_PRIO_SLEEP);
 }
 
 void SetInitialStack(int i){

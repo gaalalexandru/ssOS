@@ -60,29 +60,17 @@ typedef enum tm4c_ports	ports_t;
 
 enum tm4c_timers {
 	Timer0A = 0, // 16/32 bit
-	Timer0B,
-	Timer1A,
-	Timer1B,
-	Timer2A,
-	Timer2B,
-	Timer3A,
-	Timer3B,
-	Timer4A,
-	Timer4B,
-	Timer5A,
-	Timer5B,
-	WTimer0A,  // 32/64 bit
-	WTimer0B,
-	WTimer1A,
-	WTimer1B,
-	WTimer2A,
-	WTimer2B,
-	WTimer3A,
-	WTimer3B,
-	WTimer4A,
-	WTimer4B,
-	WTimer5A,
-	WTimer5B
+	Timer1A = 1,
+	Timer2A = 2,
+	Timer3A = 3,
+	Timer4A = 4,
+	Timer5A = 5,
+	WTimer0A = 10,  // 32/64 bit
+	WTimer1A = 11,
+	WTimer2A = 12,
+	WTimer3A = 13,
+	WTimer4A = 14,
+	WTimer5A = 15,
 };
 typedef enum tm4c_timers	timers_t;
 
@@ -118,8 +106,8 @@ typedef enum tm4c_timers	timers_t;
 
 uint8_t OS_EdgeTrigger_Restart(ports_t port, uint8_t pin);
 uint8_t OS_EdgeTrigger_Init(ports_t port, uint8_t pin, uint8_t priority, uint8_t type, uint8_t resistor);
-uint8_t OS_Clock_Init(uint8_t clock_Mhz);
-uint8_t OS_Timer_Init(timers_t timer, uint16_t freqency, uint8_t priority);
+uint32_t OS_Clock_Init(uint8_t clock_Mhz);
+uint8_t OS_Timer_Init(timers_t timer, uint32_t freqency, uint8_t priority);
 #endif
 
 //EOF

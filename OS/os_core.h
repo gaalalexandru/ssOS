@@ -11,7 +11,6 @@
 // *******************************************************************************************************
 // ************************************* ssOS Configuration section **************************************
 // *******************************************************************************************************
-
 //Uncomment the target define you are using
 //Leave other target defines commented!!!
 #define TARGET_TM4C
@@ -19,6 +18,9 @@
 
 #define NUMTHREADS  8  // maximum number of threads
 #define NUMPERIODIC 2 // maximum number of periodic threads
+#define NUM_OS_PERIODIC_TASK 2 //Number of OS embedded periodic tasks
+//This needed for OS to run (i.e. runsleep, runperiodicevents)
+//Do not confuse with used / application periodic tasks
 
 #define STACKSIZE   100      // number of 32-bit words in stack per thread
 #define FSIZE 10  // general FIFO size
@@ -30,7 +32,6 @@
 // *******************************************************************************************************
 // ************************************** Types definition section ***************************************
 // *******************************************************************************************************
-
 struct tcb{  //main thread controll block
   int32_t *sp;  // pointer to stack (valid for threads not running
   struct tcb *next;  // linked-list pointer
@@ -46,14 +47,6 @@ struct ptcb{	//periodic trigger controll block
 	uint32_t counter;
 };
 typedef struct ptcb ptcbType;
-/*
-struct etcb{ //edge trigger controll block
-	//int32_t *edgeSemaphore;
-	int32_t semaphore;
-	uint8_t port;
-	uint8_t pin;
-	uint8_t 
-};*/
 
 // *******************************************************************************************************
 // ************************************* Function prototypes section *************************************
