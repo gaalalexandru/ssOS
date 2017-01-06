@@ -4,12 +4,12 @@
 // A very simple real time operating system with minimal features.
 // For copyright, configuration and usage read readme.txt
 
+//#include "../inc/tm4c123gh6pm.h"  //AleGaa not needed at the moment
+
 #include <stdint.h>
 #include "os_core.h"
 #include "os_hw.h"
 #include "profile.h"
-//#include "../inc/tm4c123gh6pm.h"  //AleGaa not needed at the moment
-#include "driverlib/gpio.h"
 
 #define THREADFREQ 1000   // frequency in Hz
 
@@ -21,18 +21,14 @@ uint32_t Count3;   // number of times Task3 loops
 uint32_t Count4;   // number of times Task4 loops
 uint32_t Count5;   // number of times Task5 loops
 uint32_t Count6;   // number of times Task6 loops
-uint32_t CountIdle;   // number of times Idle_Task loops
+uint32_t CountIdle;  // number of times Idle_Task loops
 
 fifo_t FifoA;
 
 extern ptcbType PerTask[NUMPERIODIC];
-
-extern PortSema_t SemPortA;
-extern PortSema_t SemPortB;
-extern PortSema_t SemPortC;
 extern PortSema_t SemPortD;
-extern PortSema_t SemPortE;
 extern PortSema_t SemPortF;
+
 uint8_t last1,last2;
 void Task0(void){	//Periodic task0 - 10 ms
   Count0 = 0;
@@ -119,23 +115,21 @@ void Idle_Task(void){
 }
 
 int main(void){
-	OS_Init();            // initialize, disable interrupts
-	Profile_Init();       // enable digital I/O on profile pins
-	
+	//2
+	OS_Init(80);  // initialize, disable interrupts
+	Profile_Init();  // enable digital I/O on profile pins
+	//3
 	OS_InitSemaphore(&SemPortD.pin6,0);
 	OS_InitSemaphore(&SemPortD.pin7,0);	
 	OS_InitSemaphore(&SemPortF.pin0,0);
-	OS_InitSemaphore(&SemPortF.pin4,0);	
-	
-	OS_FIFO_Init(&FifoA);
-	
-	OS_EdgeTrigger_Init(PortD,GPIO_PIN_6|GPIO_PIN_7,0,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
-	OS_EdgeTrigger_Init(PortF,GPIO_PIN_0|GPIO_PIN_4,0,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
-// OS_EdgeTrigger_Init( port,  pin,  priority,  type, resistor)
-	
+	OS_InitSemaphore(&SemPortF.pin4,0);
+	//4	
+	OS_EdgeTrigger_Init(PortD,GPIO_PIN_6|GPIO_PIN_7,INT_PRIO_PIN,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
+	OS_EdgeTrigger_Init(PortF,GPIO_PIN_0|GPIO_PIN_4,INT_PRIO_PIN,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
+	//5
 	OS_AddPeriodicEventThread(&PerTask[0].semaphore, 10);
 	OS_AddPeriodicEventThread(&PerTask[1].semaphore, 20);
-
+	//6
   OS_AddThreads(&Task0,10, 
 	              &Task1, 20,
 	              &Task2, 5,
@@ -144,8 +138,10 @@ int main(void){
 	              &Task5, 5,
 	              &Task6, 250,
 	              &Idle_Task,254);	//Idle task is lowest priority
-	
-  OS_Launch(SysCtlClockGet()/THREADFREQ); // doesn't return, interrupts enabled in here
-  return 0;             // this never executes
+	//7
+	OS_FIFO_Init(&FifoA);	
+  //8
+	OS_Launch(SysCtlClockGet()/THREADFREQ); // doesn't return, interrupts enabled in here
+  return 0;  // this never executes
 }
 //EOF

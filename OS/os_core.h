@@ -18,7 +18,8 @@
 
 #define NUMTHREADS  8  // maximum number of threads
 #define NUMPERIODIC 2 // maximum number of periodic threads
-#define NUM_OS_PERIODIC_TASK 2 //Number of OS embedded periodic tasks
+
+#define NUM_OS_PERIODIC_TASK 2 //Number of OS embedded periodic tasks, DO NOT modify this if you are not changing the OS.
 //This needed for OS to run (i.e. runsleep, runperiodicevents)
 //Do not confuse with used / application periodic tasks
 
@@ -26,8 +27,10 @@
 #define FSIZE 10  // general FIFO size
 
 #define STARTUP_DELAY 10
+#define INT_PRIO_PIN (0)  //HW pin interrupt priority for external HW events
 #define INT_PRIO_PERIODIC_EV (1)  //Timer interrupt priority for periodic events
 #define INT_PRIO_SLEEP (3)  //Timer interrupt priority for sleep decrementing
+
 
 // *******************************************************************************************************
 // ************************************** Types definition section ***************************************
@@ -48,10 +51,6 @@ struct ptcb{	//periodic trigger controll block
 };
 typedef struct ptcb ptcbType;
 
-// *******************************************************************************************************
-// ************************************* Function prototypes section *************************************
-// *******************************************************************************************************
-
 struct fifo_st{
 	uint32_t Fifo[FSIZE];
 	uint32_t LostData;	
@@ -62,13 +61,17 @@ struct fifo_st{
 };
 typedef struct fifo_st fifo_t;
 
+// *******************************************************************************************************
+// ************************************* Function prototypes section *************************************
+// *******************************************************************************************************
+
 // ******** OS_Init ************
 // Initialize operating system, disable interrupts
-// Initialize OS controlled I/O: periodic interrupt, bus clock as fast as possible
+// Initialize OS controlled I/O: periodic interrupt, bus clock
 // Initialize OS global variables
 // Inputs:  none
 // Outputs: none
-void OS_Init(void);
+void OS_Init(uint8_t clock_Mhz);
 
 //******** OS_AddThreads ***************
 // Add all threads to the scheduler

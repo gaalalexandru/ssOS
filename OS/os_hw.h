@@ -33,7 +33,7 @@ typedef struct port_sema PortSema_t;
 
 #ifdef TARGET_TM4C
 //TM4C specific code
-#include "BSP_TM4C.h"
+//#include "BSP_TM4C.h"
 
 /*-------------------Type Includes-------------------*/
 #include "stdbool.h"

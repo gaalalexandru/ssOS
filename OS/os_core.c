@@ -1,22 +1,21 @@
-// os.c
+// os_core.c
 // Runs on LM4F120/TM4C123 will be ported to MSP432 in next version
 // ssOS - stupid simple Operating System
 // A very simple real time operating system with minimal features.
 // For copyright, configuration and usage read readme.txt
  
-// *******************************************************************************************************
-// ***************************************** Declaration section *****************************************
-// *******************************************************************************************************
-
 #include <stdint.h>
 #include "os_core.h"
 #include "os_hw.h"
 #include "CortexM.h"
 
+// *******************************************************************************************************
+// ***************************************** Declaration section *****************************************
+// *******************************************************************************************************
 
 // function definitions in osasm.s
 void StartOS(void);
-// function definitions in os.c
+// function definitions in os_core.h
 void static runperiodicevents(void);
 void static runsleep(void);
 
@@ -29,7 +28,7 @@ tcbType *RunPt;  //Current thread Run Pointer
 int32_t Stacks[NUMTHREADS][STACKSIZE];  //Thread stacks
 ptcbType PerTask[NUMPERIODIC];  //Periodic events
 uint8_t Periodic_Event_Nr = 0;	//Added Periodic events
-void (*OS_PeriodicTask[NUM_OS_PERIODIC_TASK])(void);   //array of pointers to void functions, OS embedded periodic tasks, NOT used / application periodic tasks
+void (*OS_PeriodicTask[NUM_OS_PERIODIC_TASK])(void);   //array of pointers to void functions, OS embedded periodic tasks, NOT user / application periodic tasks
 
 // *******************************************************************************************************
 // ******************************************* OS Init section *******************************************
@@ -41,14 +40,13 @@ void (*OS_PeriodicTask[NUM_OS_PERIODIC_TASK])(void);   //array of pointers to vo
 // Initialize OS global variables
 // Inputs:  none
 // Outputs: none
-void OS_Init(void){
+void OS_Init(uint8_t clock_Mhz){
   // perform any initializations needed
   DisableInterrupts();
   OS_Clock_Init(80);  //Init clock at 80 Mhz
 	
 	OS_PeriodicTask[0] = runperiodicevents;  //periodic wait decrement funcion
 	OS_Timer_Init(Timer0A,1000,INT_PRIO_PERIODIC_EV);
-
 	OS_PeriodicTask[1] = runsleep;  //sleep decrement funcion
 	OS_Timer_Init(Timer1A,1000,INT_PRIO_SLEEP);
 }
@@ -208,7 +206,6 @@ void OS_Sleep(uint32_t sleepTime){
 // *******************************************************************************************************
 // ****************************************** Semaphore section ******************************************
 // *******************************************************************************************************
-
 // ******** OS_InitSemaphore ************
 // Initialize counting semaphore
 // Inputs:  pointer to a semaphore

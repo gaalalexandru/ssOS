@@ -18,6 +18,9 @@ Versioning:
 		05.01.2017 - Gaal Alexandru
 		New clock init
 		New timer init & handling
+		Usable timers: A and WideA times can be initialized but ISR have to be written.
+		Reserved timers 0A and 1A for OS Core functions. Do not use them.
+		B and WideB timers can't be used
 
 Copyright & License:
 -----------------------------
@@ -48,23 +51,39 @@ http://users.ece.utexas.edu/~valvano/
 
 Configuration instructions:
 -----------------------------
-1) Include os.h in your project
-2) Include BSP.h in your project
-3) In os.c edit number of main end event threads: NUMTHREADS & NUMPERIODIC
-4) Maximum frequency for event threads is 1000Hz.
-5) Configure OS_AddThreads so it will take NUMTHREADS main threads. Update function definition and circular list, last member points to first member.
+1) Include "os_core.h" and "os_hw.h" in your project
+2) In os_core.h edit number of threads and specify number of periodic threads: NUMTHREADS & NUMPERIODIC
+3) Maximum frequency for periodic threads is 1000Hz.
+4) Configure OS_AddThreads so it will take NUMTHREADS main threads. 
+   Update function definition and circular list, last member points to first member.
+
 
 main.c usage example:
 -----------------------------
-1) The OS implementation in main.c has 6 main threads and 2 event threads.
-2) OS_AddPeriodicEventThread registers the event threads with the desired period in this case 10ms and 100ms.
-3) More event threads are possible, just modify NUMPERIODIC in os.c and make sure to register all.
-4) OS_AddThreads registers the main threads, always make sure to have one idle thread (not blocked and not sleeping)
-5) More main threads are possible, just modify NUMTHREADS in os.c and make sure to register all and reconfigure the linked list in OS_AddThreads.
-6) In this example Event0 is a producer and puts data to Fifo A. Event1 is a producer and puts data to Fifo B.
-7) Task0 and Task1 are consumers and get data from Fifo A. Task2 is a consumer and gets data from Fifo B.
-8) Task3 and Task4 are syncronized by Task34Sync and Task43Sync
-10) OS_Launch will launch the OS, use the arguments as in the example.
+1) The OS implementation in main.c has 8 main threads of which four are external HW event threads and two are periodic event threads.
+2) Init the OS with "OS_Init(Clock)", clock is in MHz
+3) For the external HW event threads a semaphore must be initialized with the HW port and pin number.
+   Ex. Use: "OS_InitSemaphore(&SemPortD.pin6,0);" for portD pin6
+   The external HW event threads have to wait on this semaphore with: "OS_Wait(&SemPortF.pin0);"
+4) Register / init HW port and pins for external HW interrupt events. 
+   Ex. OS_EdgeTrigger_Init(PortD,GPIO_PIN_6|GPIO_PIN_7,0,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
+   Select type of interrupt desired, pull-up/down. Details are bellow in this file.
+5) OS_AddPeriodicEventThread registers the periodic event threads with the desired period in this case 10ms and 20ms.
+   Ex. OS_AddPeriodicEventThread(&PerTask[x].semaphore, yyms);
+   PerTask[x].semaphore is an already defined semaphore.
+   The periodic event threads have to wait on this semaphore with: "OS_Wait(&PerTask[x].semaphore);"
+6) OS_AddThreads registers the threads, always make sure to have one idle thread (not blocked and not sleeping)
+   More threads are possible, just modify NUMTHREADS in os_core.c and make sure to register all and reconfigure the linked list in OS_AddThreads.
+7) Initialize any necessary FIFO with "OS_FIFO_Init(&FifoA);"
+   FifoA has to be declared as a global variable of type "fifo_t".
+   In this example Task0 is a producer and puts data to Fifo A with "OS_FIFO_Put(&FifoA,Count0);"
+   Task1 is a consumer and get data from Fifo A with "Count1 = OS_FIFO_Get(&FifoA);"
+8) OS_Launch will launch the OS, use the arguments as in the example.
+
+PS:Threads can be synchronized via two semaphores (ex. Task34Sync and Task43Sync).
+   This semaphore has to be declared as a global variable and initialized with value of 0.
+   One thread will signal the semaphore and the other thread will wait for that semaphore.
+   See version 1.0 of ssOS for implementation example.
 
 Debugging:
 -----------------------------
@@ -80,23 +99,13 @@ Debugging:
 		J4.34/PC7 Profile 6
 
 2) With the debugger:
-	Count0;   // number of times Task0 loops
-	Count1;   // number of times Task1 loops
-	Count2;   // number of times Task2 loops
-	Count3;   // number of times Task2 loops
-	Count4;   // number of times Task2 loops
-	CountIdle;   // number of times Task2 loops
-	CountEv0 = 0;   // number of times Task2 loops
-	CountEv1 = 0;   // number of times Task2 loops
-
-3) In the main.c example you can check correct functioning with:
-	Count0 ~ Count1 ~ CountEv0
-	Count2 ~ CountEv1
-	Count3 ~ Count4
-	
+	Count0;   // number of times Task0 is called
+	Count1;   // number of times Task1 is called
+	Count2;   // number of times Task2 is called
+	etc...
 
 ssOS configs:
-
+-----------------------------
 Edge interrupt level setting:
 uint8_t OS_EdgeTrigger_Init(uint8_t port, uint8_t pin, uint8_t priority, uint8_t type)
 
@@ -120,7 +129,7 @@ pin:
 	
 priority:
 	0 - highest
-	1 - lowest
+	7 - lowest
 	
 type:
 	#define GPIO_FALLING_EDGE       0x00000000  // Interrupt on falling edge
