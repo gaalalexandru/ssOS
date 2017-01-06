@@ -6,18 +6,13 @@
 #ifndef __OSHW_H
 #define __OSHW_H  1
 
+/*------------------- Includes-------------------*/
+#include "CortexM.h"
+#include "stdbool.h"
+#include "stdint.h"
 #include "os_core.h"
-
-/*
-#define	Pin0	(0x01)
-#define Pin1	(0x02)
-#define Pin2	(0x04)
-#define Pin3	(0x08)
-#define Pin4	(0x10)
-#define Pin5	(0x20)
-#define Pin6	(0x40)
-#define	Pin7	(0x80)
-*/
+#include "os_config.h"
+//#include "../inc/tm4c123gh6pm.h"   //AleGaa not needed at the moment
 
 struct port_sema {
 	int32_t pin0;
@@ -33,11 +28,7 @@ typedef struct port_sema PortSema_t;
 
 #ifdef TARGET_TM4C
 //TM4C specific code
-//#include "BSP_TM4C.h"
 
-/*-------------------Type Includes-------------------*/
-#include "stdbool.h"
-#include "stdint.h"
 /*-------------------HW define Includes--------------*/
 #include "inc/hw_ints.h"
 #include "inc/hw_memmap.h"
@@ -74,21 +65,6 @@ enum tm4c_timers {
 };
 typedef enum tm4c_timers	timers_t;
 
-
-
-#define GPIO_PORTA_LOCK_R       (*((volatile uint32_t *)0x40004520))
-#define GPIO_PORTA_CR_R         (*((volatile uint32_t *)0x40004524))
-#define GPIO_PORTB_LOCK_R       (*((volatile uint32_t *)0x40005520))
-#define GPIO_PORTB_CR_R         (*((volatile uint32_t *)0x40005524))
-#define GPIO_PORTC_LOCK_R       (*((volatile uint32_t *)0x40006520))
-#define GPIO_PORTC_CR_R         (*((volatile uint32_t *)0x40006524))
-#define GPIO_PORTD_LOCK_R       (*((volatile uint32_t *)0x40007520))
-#define GPIO_PORTD_CR_R         (*((volatile uint32_t *)0x40007524))
-#define GPIO_PORTE_LOCK_R       (*((volatile uint32_t *)0x40024520))
-#define GPIO_PORTE_CR_R         (*((volatile uint32_t *)0x40024524))
-#define GPIO_PORTF_LOCK_R       (*((volatile uint32_t *)0x40025520))
-#define GPIO_PORTF_CR_R         (*((volatile uint32_t *)0x40025524))
-	
 #endif //TARGET_TM4C
 
 #ifdef TARGET_MSP432

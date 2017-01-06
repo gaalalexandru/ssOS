@@ -6,31 +6,12 @@
 #ifndef __OS_CORE_H
 #define __OS_CORE_H  1
 
-#include <stdint.h>
-
-// *******************************************************************************************************
-// ************************************* ssOS Configuration section **************************************
-// *******************************************************************************************************
-//Uncomment the target define you are using
-//Leave other target defines commented!!!
-#define TARGET_TM4C
-//#define TARGET_MSP432
-
-#define NUMTHREADS  8  // maximum number of threads
-#define NUMPERIODIC 2 // maximum number of periodic threads
-
-#define NUM_OS_PERIODIC_TASK 2 //Number of OS embedded periodic tasks, DO NOT modify this if you are not changing the OS.
-//This needed for OS to run (i.e. runsleep, runperiodicevents)
-//Do not confuse with used / application periodic tasks
-
-#define STACKSIZE   100      // number of 32-bit words in stack per thread
-#define FSIZE 10  // general FIFO size
-
-#define STARTUP_DELAY 10
-#define INT_PRIO_PIN (0)  //HW pin interrupt priority for external HW events
-#define INT_PRIO_PERIODIC_EV (1)  //Timer interrupt priority for periodic events
-#define INT_PRIO_SLEEP (3)  //Timer interrupt priority for sleep decrementing
-
+/*------OS Includes------*/
+#include "CortexM.h"
+#include "stdbool.h"
+#include "stdint.h"
+#include "os_hw.h"
+#include "os_config.h"
 
 // *******************************************************************************************************
 // ************************************** Types definition section ***************************************
@@ -86,7 +67,9 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
                   void(*thread4)(void), uint32_t p4,
                   void(*thread5)(void), uint32_t p5,
                   void(*thread6)(void), uint32_t p6,
-                  void(*thread7)(void), uint32_t p7);
+                  void(*thread7)(void), uint32_t p7,
+                  void(*thread8)(void), uint32_t p8,
+                  void(*thread9)(void), uint32_t p9);
 
 //******** OS_AddPeriodicEventThread ***************
 // Add one background periodic event thread

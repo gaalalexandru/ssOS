@@ -3,10 +3,8 @@
 // A very simple real time operating system with minimal features.
 // For copyright, configuration and usage read readme.txt
 
-/*------Export interface---Self header Includes------*/
+/*------OS Includes------*/
 #include "os_hw.h"
-#include "CortexM.h"
-//#include "../inc/tm4c123gh6pm.h"   //AleGaa not needed at the moment
 
 extern void (*OS_PeriodicTask[NUM_OS_PERIODIC_TASK])(void);   //array of pointers to void functions, OS embedded periodic tasks, NOT used / application periodic tasks
 

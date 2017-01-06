@@ -4,10 +4,8 @@
 // A very simple real time operating system with minimal features.
 // For copyright, configuration and usage read readme.txt
  
-#include <stdint.h>
+/*------OS Includes------*/
 #include "os_core.h"
-#include "os_hw.h"
-#include "CortexM.h"
 
 // *******************************************************************************************************
 // ***************************************** Declaration section *****************************************
@@ -85,7 +83,9 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
                   void(*thread4)(void), uint32_t p4,
                   void(*thread5)(void), uint32_t p5,
                   void(*thread6)(void), uint32_t p6,
-                  void(*thread7)(void), uint32_t p7){
+                  void(*thread7)(void), uint32_t p7,
+                  void(*thread8)(void), uint32_t p8,
+                  void(*thread9)(void), uint32_t p9){
   int32_t status; //I bit status
   int32_t i;	//thread index
   status = StartCritical(); //Disable Interrupts
@@ -98,7 +98,9 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
 	tcbs[4].next = &tcbs[5];	//main thread 4 points to main thread 5
 	tcbs[5].next = &tcbs[6];	//main thread 5 points to main thread 6
 	tcbs[6].next = &tcbs[7];	//main thread 6 points to main thread 7
-	tcbs[7].next = &tcbs[0];	//main thread 7 points to main thread 8
+	tcbs[7].next = &tcbs[8];	//main thread 5 points to main thread 6
+	tcbs[8].next = &tcbs[9];	//main thread 6 points to main thread 7
+	tcbs[9].next = &tcbs[0];	//main thread 7 points to main thread 8
 	
 	//initialize threads as not blocked									
 	for(i=0; i< NUMTHREADS; i++){tcbs[i].blocked = 0;}

@@ -6,12 +6,11 @@
 
 //#include "../inc/tm4c123gh6pm.h"  //AleGaa not needed at the moment
 
-#include <stdint.h>
-#include "os_core.h"
+/*------OS Includes------*/
 #include "os_hw.h"
+#include "os_core.h"
+#include "os_config.h"
 #include "profile.h"
-
-#define THREADFREQ 1000   // frequency in Hz
 
 // runs each thread 2 ms
 uint32_t Count0;   // number of times Task0 loops
@@ -21,7 +20,12 @@ uint32_t Count3;   // number of times Task3 loops
 uint32_t Count4;   // number of times Task4 loops
 uint32_t Count5;   // number of times Task5 loops
 uint32_t Count6;   // number of times Task6 loops
+uint32_t Count7;   // number of times Task7 loops
+uint32_t Count8;   // number of times Task8 loops
 uint32_t CountIdle;  // number of times Idle_Task loops
+
+int32_t Task78Sync;
+int32_t Task87Sync;
 
 fifo_t FifoA;
 
@@ -29,7 +33,6 @@ extern ptcbType PerTask[NUMPERIODIC];
 extern PortSema_t SemPortD;
 extern PortSema_t SemPortF;
 
-uint8_t last1,last2;
 void Task0(void){	//Periodic task0 - 10 ms
   Count0 = 0;
   while(1){
@@ -98,12 +101,31 @@ void Task5(void){	 //response to task PD7
 	}
 }
 
-void Task6(void){	//periodic event 100 ms
+void Task6(void){
 	Count6 = 0;
 	while(1){
 		Count6++;
 		Profile_Toggle6();
 		OS_Sleep(100);
+	}
+}
+
+void Task7(void){
+	Count6 = 0;
+	while(1){
+		OS_Sleep(500);
+		OS_Signal(&Task78Sync);
+		OS_Wait(&Task87Sync);
+		Count7++;
+	}
+}
+
+void Task8(void){
+	Count6 = 0;
+	while(1){
+		OS_Signal(&Task87Sync);
+		OS_Wait(&Task78Sync);
+		Count8++;
 	}
 }
 
@@ -136,11 +158,16 @@ int main(void){
 	              &Task3, 5,
 	              &Task4, 5,
 	              &Task5, 5,
-	              &Task6, 250,
+	              &Task6, 200,
+	              &Task7, 250,
+	              &Task8, 250,								
 	              &Idle_Task,254);	//Idle task is lowest priority
 	//7
-	OS_FIFO_Init(&FifoA);	
-  //8
+	OS_FIFO_Init(&FifoA);
+	//8
+	OS_InitSemaphore(&Task78Sync,0);
+	OS_InitSemaphore(&Task87Sync,0);
+  //9
 	OS_Launch(SysCtlClockGet()/THREADFREQ); // doesn't return, interrupts enabled in here
   return 0;  // this never executes
 }
