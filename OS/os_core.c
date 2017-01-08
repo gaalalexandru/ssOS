@@ -43,10 +43,10 @@ void OS_Init(uint8_t clock_Mhz){
   DisableInterrupts();
   OS_Clock_Init(80);  //Init clock at 80 Mhz
 	
-	OS_PeriodicTask[0] = runperiodicevents;  //periodic wait decrement funcion
-	OS_Timer_Init(Timer0A,1000,INT_PRIO_PERIODIC_EV);
-	OS_PeriodicTask[1] = runsleep;  //sleep decrement funcion
-	OS_Timer_Init(Timer1A,1000,INT_PRIO_SLEEP);
+	OS_PeriodicTask[0] = runsleep;  //periodic wait decrement funcion
+	OS_Timer_Init(WTimer0A,1000,INT_PRIO_SLEEP);
+	OS_PeriodicTask[1] = runperiodicevents;  //sleep decrement funcion
+	OS_Timer_Init(WTimer1A,1000,INT_PRIO_PERIODIC_EV);
 }
 
 void SetInitialStack(int i){

@@ -148,6 +148,7 @@ uint8_t OS_EdgeTrigger_Restart(ports_t port, uint8_t pin){
 // Outputs: System clock if config is successfull, 0 if not
 uint32_t OS_Clock_Init(uint8_t clock_Mhz){
 	unsigned long check_freq_hz = 0;
+	unsigned long init_freq_hz = 0;	
 	switch (clock_Mhz) {
 		case 13:  //13.33 Mhz
 			SysCtlClockSet(SYSCTL_SYSDIV_15 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);  // Configure to run at 13.33 MHz from the PLL using a 16 MHz crystal as the input.
@@ -185,11 +186,13 @@ uint32_t OS_Clock_Init(uint8_t clock_Mhz){
 		case 80:  //80 Mhz
 			SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN); //80 Mhz
 			check_freq_hz = 80000000;
+			init_freq_hz = SysCtlClockGet();
 			break;		
 		default:
 			return 0;  //error
 	}
-	return (check_freq_hz ==  SysCtlClockGet());  //OK
+	
+	return (check_freq_hz == init_freq_hz);  //OK
 	/*
 	This function configures the clocking of the device. The input crystal frequency, oscillator to be
 	used, use of the PLL, and the system clock divider are all configured with this function.
@@ -231,8 +234,9 @@ uint32_t OS_Clock_Init(uint8_t clock_Mhz){
 // Outputs: 1 if config is successfull, 0 if not
 uint8_t OS_Timer_Init(timers_t timer, uint32_t freqency, uint8_t priority){
 	uint32_t reload_value = 0;
+  int32_t status; //I bit status
+  status = StartCritical(); //Disable Interrupts
 	reload_value = ((SysCtlClockGet() / freqency) - 1);
-
 	switch (timer) {
 		case Timer0A:
 			SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);	//Timer 0 enable
@@ -393,6 +397,7 @@ uint8_t OS_Timer_Init(timers_t timer, uint32_t freqency, uint8_t priority){
 		default:
 			return 0;  //error
 	}
+	EndCritical(status);
 	return 1;  //OK
 }
 
