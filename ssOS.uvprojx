@@ -414,6 +414,11 @@
               <FileType>1</FileType>
               <FilePath>.\3rd_party\Profile.c</FilePath>
             </File>
+            <File>
+              <FileName>BSP_TM4C.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\3rd_party\BSP_TM4C.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

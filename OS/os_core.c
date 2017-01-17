@@ -6,6 +6,7 @@
  
 /*------OS Includes------*/
 #include "os_core.h"
+#include "BSP_TM4C.h"
 
 // *******************************************************************************************************
 // ***************************************** Declaration section *****************************************
@@ -42,11 +43,10 @@ void OS_Init(uint8_t clock_Mhz){
   // perform any initializations needed
   DisableInterrupts();
   OS_Clock_Init(80);  //Init clock at 80 Mhz
-	
 	OS_PeriodicTask[0] = runsleep;  //periodic wait decrement funcion
-	OS_Timer_Init(WTimer0A,1000,INT_PRIO_SLEEP);
+	OS_Timer_Init(Timer0A,RUN_SLEEP_FREQ,INT_PRIO_SLEEP);
 	OS_PeriodicTask[1] = runperiodicevents;  //sleep decrement funcion
-	OS_Timer_Init(WTimer1A,1000,INT_PRIO_PERIODIC_EV);
+	OS_Timer_Init(Timer1A,RUN_PERIODIC_FREQ,INT_PRIO_PERIODIC_EV);
 }
 
 void SetInitialStack(int i){
@@ -98,9 +98,9 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
 	tcbs[4].next = &tcbs[5];	//main thread 4 points to main thread 5
 	tcbs[5].next = &tcbs[6];	//main thread 5 points to main thread 6
 	tcbs[6].next = &tcbs[7];	//main thread 6 points to main thread 7
-	tcbs[7].next = &tcbs[8];	//main thread 5 points to main thread 6
-	tcbs[8].next = &tcbs[9];	//main thread 6 points to main thread 7
-	tcbs[9].next = &tcbs[0];	//main thread 7 points to main thread 8
+	tcbs[7].next = &tcbs[8];	//main thread 7 points to main thread 8
+	tcbs[8].next = &tcbs[9];	//main thread 8 points to main thread 9
+	tcbs[9].next = &tcbs[0];	//main thread 9 points to main thread 0
 	
 	//initialize threads as not blocked									
 	for(i=0; i< NUMTHREADS; i++){tcbs[i].blocked = 0;}
@@ -108,23 +108,28 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
 	// initialize RunPt
 	RunPt = &tcbs[0];
 
-	// initialize four stacks, including initial PC
+	// initialize stacks, including initial PC
 	SetInitialStack(0);	//SetInitialStack initial stack of main thread 0
-	Stacks[0][STACKSIZE-2] = (int32_t)(thread0);	//Set address of thread0 as PC
+	Stacks[0][STACKSIZE-2] = (int32_t)(thread0);	//Set address of thread 0 as PC
 	SetInitialStack(1);	//SetInitialStack initial stack of main thread 1
-	Stacks[1][STACKSIZE-2] = (int32_t)(thread1);	//Set address of thread1 as PC	
+	Stacks[1][STACKSIZE-2] = (int32_t)(thread1);	//Set address of thread 1 as PC
 	SetInitialStack(2);	//SetInitialStack initial stack of main thread 2
-	Stacks[2][STACKSIZE-2] = (int32_t)(thread2);	//Set address of thread2 as PC
+	Stacks[2][STACKSIZE-2] = (int32_t)(thread2);	//Set address of thread 2 as PC
 	SetInitialStack(3);	//SetInitialStack initial stack of main thread 3
-	Stacks[3][STACKSIZE-2] = (int32_t)(thread3);	//Set address of thread3 as PC
+	Stacks[3][STACKSIZE-2] = (int32_t)(thread3);	//Set address of thread 3 as PC
 	SetInitialStack(4);	//SetInitialStack initial stack of main thread 4
-	Stacks[4][STACKSIZE-2] = (int32_t)(thread4);	//Set address of thread4 as PC
+	Stacks[4][STACKSIZE-2] = (int32_t)(thread4);	//Set address of thread 4 as PC
 	SetInitialStack(5);	//SetInitialStack initial stack of main thread 5
-	Stacks[5][STACKSIZE-2] = (int32_t)(thread5);	//Set address of thread5 as PC	
+	Stacks[5][STACKSIZE-2] = (int32_t)(thread5);	//Set address of thread 5 as PC	
 	SetInitialStack(6);	//SetInitialStack initial stack of main thread 6
-	Stacks[6][STACKSIZE-2] = (int32_t)(thread6);	//Set address of thread5 as PC	
-	SetInitialStack(7);	//SetInitialStack initial stack of main thread 6
-	Stacks[7][STACKSIZE-2] = (int32_t)(thread7);	//Set address of thread5 as PC	
+	Stacks[6][STACKSIZE-2] = (int32_t)(thread6);	//Set address of thread 6 as PC
+	SetInitialStack(7);	//SetInitialStack initial stack of main thread 7
+	Stacks[7][STACKSIZE-2] = (int32_t)(thread7);	//Set address of thread 7 as PC
+	SetInitialStack(8);	//SetInitialStack initial stack of main thread 8
+	Stacks[8][STACKSIZE-2] = (int32_t)(thread8);	//Set address of thread 8 as PC
+	SetInitialStack(9);	//SetInitialStack initial stack of main thread 9
+	Stacks[9][STACKSIZE-2] = (int32_t)(thread8);	//Set address of thread 9 as PC
+
 	
 	//initialize priority for each thread
 	tcbs[0].priority = p0;
@@ -135,6 +140,8 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
 	tcbs[5].priority = p5;
 	tcbs[6].priority = p6;
 	tcbs[7].priority = p7;
+	tcbs[8].priority = p8;
+	tcbs[9].priority = p9;
 	
 	EndCritical(status);	//Enable Interrupts
 	return 1;         // successful

@@ -12,6 +12,8 @@ SET CPU_CLOCK=0x00B71B00
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\generated\objects\main.__i"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via "GENERA~1\listings\profile._ip"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\generated\objects\profile.__i"
+"C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via "GENERA~1\listings\bsp_tm4c._ip"
+"C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\generated\objects\bsp_tm4c.__i"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmAsm" --Via ".\generated\objects\startup_tm4c123._ia"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via "GENERA~1\listings\SYSTEM~1._IP"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\generated\objects\system_tm4c123.__i"

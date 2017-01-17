@@ -33,6 +33,8 @@
 #define INT_PRIO_PIN (0)  //HW pin interrupt priority for external HW events
 #define INT_PRIO_PERIODIC_EV (1)  //Timer interrupt priority for periodic events
 #define INT_PRIO_SLEEP (3)  //Timer interrupt priority for sleep decrementing
+#define RUN_PERIODIC_FREQ (1000)  //The frequency the runperiodicevents scheduler is called
+#define RUN_SLEEP_FREQ  (1000)  //The frequency the runsleep sleep counter is called
 
 //Configure HW port unlock registers, DO NOY change for TM4C controller
 #define GPIO_PORTA_LOCK_R       (*((volatile uint32_t *)0x40004520))

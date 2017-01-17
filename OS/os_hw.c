@@ -415,14 +415,14 @@ void Timer1A_Handler(void)		//Timer 1A ISR
 
 void WideTimer0A_Handler(void)		//Wide Timer 0A ISR
 {
-	TimerIntClear(WTIMER0_BASE, TIMER_A);
-	(*OS_PeriodicTask[0])();
+//	TimerIntClear(WTIMER0_BASE, TIMER_A);
+//	(*OS_PeriodicTask[0])();
 }
 
 void WideTimer1A_Handler(void)		//Wide Timer 1A ISR
 {
-	TimerIntClear(WTIMER1_BASE, TIMER_A);
-	(*OS_PeriodicTask[1])();
+//	TimerIntClear(WTIMER1_BASE, TIMER_A);
+//	(*OS_PeriodicTask[1])();
 }
 
 #endif //TARGET_TM4C
