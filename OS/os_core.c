@@ -254,7 +254,7 @@ void OS_Signal(int32_t *semaPt){
 	(*semaPt) = (*semaPt) + 1;
 	if(*semaPt <= 0){
 		threadPt = RunPt->next;	//point to next thread
-		while((threadPt->blocked) != semaPt) {	threadPt = threadPt->next; }//search for a thread that is blocked on this semaphore
+		while((threadPt->blocked) != semaPt) { threadPt = threadPt->next; }//search for a thread that is blocked on this semaphore
 		threadPt->blocked = 0;	//unblock 1st blocked thread found
 	}
 	EnableInterrupts();

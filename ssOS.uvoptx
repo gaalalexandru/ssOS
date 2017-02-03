@@ -117,7 +117,8 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>ĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚČ`üŠ¤fŔ4ď4</Name>
+          <Name>ĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚĚČ`$
+˝1¬ŻĽň-</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -150,75 +151,40 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Count0,0x0A</ItemText>
+          <ItemText>CountIdle,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Count1,0x0A</ItemText>
+          <ItemText>PerTask,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Count2,0x0A</ItemText>
+          <ItemText>FifoA</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Count3,0x0A</ItemText>
+          <ItemText>check_freq_hz</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Count4,0x0A</ItemText>
+          <ItemText>OS_PeriodicTask</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Count5,0x0A</ItemText>
+          <ItemText>OS_PeriodicTask[2]</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Count6,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>7</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>CountIdle,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>8</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>PerTask,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>9</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>FifoA</ItemText>
-        </Ww>
-        <Ww>
-          <count>10</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>check_freq_hz</ItemText>
-        </Ww>
-        <Ww>
-          <count>11</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>OS_PeriodicTask</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>OS_PeriodicTask[2]</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
           <ItemText>OS_PeriodicTask[4]</ItemText>
         </Ww>
         <Ww>
-          <count>14</count>
+          <count>7</count>
           <WinNumber>1</WinNumber>
           <ItemText>Count0</ItemText>
         </Ww>
@@ -227,12 +193,12 @@
         <Ww>
           <count>0</count>
           <WinNumber>2</WinNumber>
-          <ItemText>FifoB,0x0A</ItemText>
+          <ItemText>Count0,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>CountEv1,0x0A</ItemText>
+          <ItemText>Count1,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
@@ -252,7 +218,27 @@
         <Ww>
           <count>5</count>
           <WinNumber>2</WinNumber>
-          <ItemText>SemPortD,0x0A</ItemText>
+          <ItemText>Count5,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>Count6,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>Count7,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>Count8,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>9</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>CountIdle,0x0A</ItemText>
         </Ww>
       </WatchWindow2>
       <Tracepoint>
