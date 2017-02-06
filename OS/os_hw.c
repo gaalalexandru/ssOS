@@ -5,6 +5,7 @@
 
 /*------OS Includes------*/
 #include "os_hw.h"
+//#include "profile.h"
 
 extern void (*OS_PeriodicTask[NUM_OS_PERIODIC_TASK])(void);   //array of pointers to void functions, OS embedded periodic tasks, NOT used / application periodic tasks
 
@@ -403,26 +404,42 @@ uint8_t OS_Timer_Init(timers_t timer, uint32_t freqency, uint8_t priority){
 
 void Timer0A_Handler(void)		//Timer 0A ISR
 {
-	TimerIntClear(TIMER0_BASE, TIMER_A);
-	(*OS_PeriodicTask[0])();
+	//TimerIntClear(TIMER0_BASE, TIMER_A);
+	//(*OS_PeriodicTask[0])();
 }
 
 void Timer1A_Handler(void)		//Timer 1A ISR
 {
-	TimerIntClear(TIMER1_BASE, TIMER_A);
-	(*OS_PeriodicTask[1])();
+	//TimerIntClear(TIMER1_BASE, TIMER_A);
+	//(*OS_PeriodicTask[1])();
 }
 
 void WideTimer0A_Handler(void)		//Wide Timer 0A ISR
 {
-//	TimerIntClear(WTIMER0_BASE, TIMER_A);
-//	(*OS_PeriodicTask[0])();
+	TimerIntClear(WTIMER0_BASE, TIMER_A);
+	//Profile_Toggle5();
+	(*OS_PeriodicTask[0])();
 }
 
 void WideTimer1A_Handler(void)		//Wide Timer 1A ISR
 {
-//	TimerIntClear(WTIMER1_BASE, TIMER_A);
-//	(*OS_PeriodicTask[1])();
+	TimerIntClear(WTIMER1_BASE, TIMER_A);
+	//Profile_Toggle6();
+	(*OS_PeriodicTask[1])();
+}
+
+void OS_SysTick_Init(uint32_t time)
+{
+	/*
+	IntDisable(INT_SYSCTL);
+	SysTickIntDisable();
+	SysTickDisable();
+	SysTickPeriodSet(time-1);
+	SysTickEnable();
+	SysTickIntEnable();
+	IntPrioritySet(INT_SYSCTL,(7)<<5);	//Priority 3 = "011"0.0000
+	IntEnable(INT_SYSCTL);	//Timer 0A enable of interrupts	
+	*/
 }
 
 #endif //TARGET_TM4C

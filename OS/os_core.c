@@ -6,7 +6,8 @@
  
 /*------OS Includes------*/
 #include "os_core.h"
-#include "BSP_TM4C.h"
+
+#include "profile.h"
 
 // *******************************************************************************************************
 // ***************************************** Declaration section *****************************************
@@ -44,9 +45,9 @@ void OS_Init(uint8_t clock_Mhz){
   DisableInterrupts();
   OS_Clock_Init(80);  //Init clock at 80 Mhz
 	OS_PeriodicTask[0] = runsleep;  //periodic wait decrement funcion
-	OS_Timer_Init(Timer0A,RUN_SLEEP_FREQ,INT_PRIO_SLEEP);
+	OS_Timer_Init(WTimer0A,RUN_SLEEP_FREQ,INT_PRIO_SLEEP);
 	OS_PeriodicTask[1] = runperiodicevents;  //sleep decrement funcion
-	OS_Timer_Init(Timer1A,RUN_PERIODIC_FREQ,INT_PRIO_PERIODIC_EV);
+	OS_Timer_Init(WTimer1A,RUN_PERIODIC_FREQ,INT_PRIO_PERIODIC_EV);
 }
 
 void SetInitialStack(int i){
@@ -128,7 +129,7 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
 	SetInitialStack(8);	//SetInitialStack initial stack of main thread 8
 	Stacks[8][STACKSIZE-2] = (int32_t)(thread8);	//Set address of thread 8 as PC
 	SetInitialStack(9);	//SetInitialStack initial stack of main thread 9
-	Stacks[9][STACKSIZE-2] = (int32_t)(thread8);	//Set address of thread 9 as PC
+	Stacks[9][STACKSIZE-2] = (int32_t)(thread9);	//Set address of thread 9 as PC
 
 	
 	//initialize priority for each thread
@@ -154,6 +155,7 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
 // Outputs: none (does not return)
 // Errors: theTimeSlice must be less than 16,777,216
 void OS_Launch(uint32_t theTimeSlice){
+	//OS_SysTick_Init(theTimeSlice);
   STCTRL = 0;                  // disable SysTick during setup
   STCURRENT = 0;               // any write to current clears it
   SYSPRI3 =(SYSPRI3&0x00FFFFFF)|0xE0000000; // set priority 7 for systick interrupt
@@ -161,7 +163,7 @@ void OS_Launch(uint32_t theTimeSlice){
 	//and needs to be interrupted by event threads
   STRELOAD = theTimeSlice - 1; // reload value
   STCTRL = 0x00000007;         // enable, core clock and interrupt arm
-  StartOS();                   // start on the first task
+	StartOS();                   // start on the first task
 }
 
 // *******************************************************************************************************
@@ -176,7 +178,8 @@ void Scheduler(void){  // every time slice
 	uint8_t maxprio = 255;
 	tcbType *tempPt;
 	tcbType *bestPt;
-  tempPt = RunPt;         
+  tempPt = RunPt;      
+	//Profile_Toggle4();
 	// search for highest thread not blocked or sleeping
 	do{
 		tempPt = tempPt->next;  //skips at least one
@@ -187,6 +190,7 @@ void Scheduler(void){  // every time slice
 		}
 	} while (RunPt != tempPt); //search through all linked list
 	RunPt = bestPt; //move to next suitable thread
+	//Profile_Toggle3();
 }
 
 //******** OS_Suspend ***************
@@ -359,8 +363,8 @@ void static runperiodicevents(void){
 		}
 	}
 	if(flag) {
-		OS_Suspend(); // run the scheduler
 		flag = 0;
+		OS_Suspend(); // run the scheduler
 	}
 }
 

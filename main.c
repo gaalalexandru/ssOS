@@ -36,27 +36,26 @@ extern PortSema_t SemPortF;
 void Task0(void){	//Periodic task0 - 10 ms
   Count0 = 0;
   while(1){
-		//OS_Wait(&PerTask[0].semaphore);
+		OS_Wait(&PerTask[0].semaphore);
 		Count0++;
-		//OS_FIFO_Put(&FifoA,Count0);
+		OS_FIFO_Put(&FifoA,Count0);
     Profile_Toggle0();
-		OS_Sleep(10);
+		//OS_Sleep(10);
   }
 }
 void Task1(void){		//Periodic task1 - 20 ms
   Count1 = 0;
   while(1){
-		//OS_Wait(&PerTask[1].semaphore);
-		Count1++;
+		OS_Wait(&PerTask[1].semaphore);
+		//Count1++;
     //Count1 = OS_FIFO_Get(&FifoA);
     Profile_Toggle1();
-		OS_Sleep(20);
+		//OS_Sleep(20);
   }
 }
 void Task2(void){		//Edge triggered task PF0
   Count2 = 0;
   while(1){
-		/*
 		OS_Wait(&SemPortF.pin0); // signaled in OS on button touch
 		OS_Sleep(50); //sleep to debounce switch		
 		if(!GPIOPinRead(GPIO_PORTF_BASE,GPIO_INT_PIN_0)) {   
@@ -64,16 +63,16 @@ void Task2(void){		//Edge triggered task PF0
 			Count2++;
 		}
 		OS_EdgeTrigger_Restart(PortF,GPIO_PIN_0);
-		*/
+		/*
 		Count2++;
 		Profile_Toggle2();
 		OS_Sleep(50);
+		*/
 	}
 }
 void Task3(void){	 //response to task PF4
   Count3 = 0;
   while(1){
-		/*
 		OS_Wait(&SemPortF.pin4); // signaled in OS on button touch
 		OS_Sleep(50); //sleep to debounce switch		
 		if(!GPIOPinRead(GPIO_PORTF_BASE,GPIO_INT_PIN_4)) {   
@@ -81,10 +80,11 @@ void Task3(void){	 //response to task PF4
 			Count3++;
 		}
 		OS_EdgeTrigger_Restart(PortF,GPIO_PIN_4);
-		*/
+		/*
 		Count3++;
-		Profile_Toggle3();
+		//Profile_Toggle3();
 		OS_Sleep(100);
+		*/
 	}
 }
 
@@ -137,12 +137,10 @@ void Task7(void){
 	Count7 = 0;
 	while(1){
 		Count7++;
-		
-		OS_Sleep(500);
 		OS_Signal(&Task78Sync);
 		OS_Wait(&Task87Sync);
-		Count7++;
 		Profile_Toggle5();
+		OS_Sleep(500);
 		
 	}
 }
@@ -151,12 +149,10 @@ void Task8(void){
 	Count8 = 0;
 	while(1){
 		Count8++;
-		
 		OS_Signal(&Task87Sync);
 		OS_Wait(&Task78Sync);
-		Count8++;
 		Profile_Toggle6();
-		
+		//OS_Sleep(500);
 	}
 }
 
@@ -174,24 +170,24 @@ int main(void){
 	//3
 	//OS_InitSemaphore(&SemPortD.pin6,0);
 	//OS_InitSemaphore(&SemPortD.pin7,0);	
-	//OS_InitSemaphore(&SemPortF.pin0,0);
-	//OS_InitSemaphore(&SemPortF.pin4,0);
+	OS_InitSemaphore(&SemPortF.pin0,0);
+	OS_InitSemaphore(&SemPortF.pin4,0);
 	//4	
 	//OS_EdgeTrigger_Init(PortD,GPIO_PIN_6|GPIO_PIN_7,INT_PRIO_PIN,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
-	//OS_EdgeTrigger_Init(PortF,GPIO_PIN_0|GPIO_PIN_4,INT_PRIO_PIN,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
+	OS_EdgeTrigger_Init(PortF,GPIO_PIN_0|GPIO_PIN_4,INT_PRIO_PIN,GPIO_FALLING_EDGE,GPIO_PIN_TYPE_STD_WPU);
 	//5
-	//OS_AddPeriodicEventThread(&PerTask[0].semaphore, 10);
-	//OS_AddPeriodicEventThread(&PerTask[1].semaphore, 20);
+	OS_AddPeriodicEventThread(&PerTask[0].semaphore, 10);
+	OS_AddPeriodicEventThread(&PerTask[1].semaphore, 20);
 	//6
-  OS_AddThreads(&Task0,10, 
-	              &Task1, 20,
+  OS_AddThreads(&Task0, 5, 
+	              &Task1, 5,
 	              &Task2, 5,
 	              &Task3, 5,
 	              &Task4, 5,
 	              &Task5, 5,
-	              &Task6, 200,
-	              &Task7, 250,
-	              &Task8, 250,								
+	              &Task6, 5,
+	              &Task7, 5,
+	              &Task8, 5,								
 	              &Idle_Task,254);	//Idle task is lowest priority
 	//7
 	//OS_FIFO_Init(&FifoA);

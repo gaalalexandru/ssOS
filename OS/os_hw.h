@@ -38,6 +38,8 @@ typedef struct port_sema PortSema_t;
 #include "driverlib/interrupt.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/timer.h"
+#include "driverlib/systick.h"
+
 
 enum tm4c_ports {
 	PortA = 0,
@@ -84,6 +86,7 @@ uint8_t OS_EdgeTrigger_Restart(ports_t port, uint8_t pin);
 uint8_t OS_EdgeTrigger_Init(ports_t port, uint8_t pin, uint8_t priority, uint8_t type, uint8_t resistor);
 uint32_t OS_Clock_Init(uint8_t clock_Mhz);
 uint8_t OS_Timer_Init(timers_t timer, uint32_t freqency, uint8_t priority);
+void OS_SysTick_Init(uint32_t time);
 #endif
 
 //EOF
