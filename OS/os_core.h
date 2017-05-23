@@ -16,6 +16,7 @@
 // *******************************************************************************************************
 // ************************************** Types definition section ***************************************
 // *******************************************************************************************************
+
 struct tcb{  //main thread controll block
   int32_t *sp;  // pointer to stack (valid for threads not running
   struct tcb *next;  // linked-list pointer
@@ -151,8 +152,5 @@ int OS_FIFO_Put(fifo_t *fifo,uint32_t data);
 // Inputs:  none
 // Outputs: data retrieved
 uint32_t OS_FIFO_Get(fifo_t *fifo);
-//void BSP_PeriodicTask_Init(void(*task)(void), uint32_t freq, uint8_t priority);
-//void BSP_PeriodicTask_InitB(void(*task)(void), uint32_t freq, uint8_t priority);
-//void BSP_Clock_InitFastest(void);
 #endif
 //EOF

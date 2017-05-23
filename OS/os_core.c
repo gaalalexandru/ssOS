@@ -51,25 +51,25 @@ void OS_Init(uint8_t clock_Mhz){
 }
 
 void SetInitialStack(int i){
-  //first set for each stack the stack pointer
-  tcbs[i].sp = &Stacks[i][STACKSIZE-16]; // thread stack pointer
-  //fill in bottom positions of the stack with register values, as if thread was already running and interrupted
-  Stacks[i][STACKSIZE-1] = 0x01000000;   // thumb bit
-  //Stacks[i][STACKSIZE-2] = PC; //The Program Counter will be set later with the address of the function it points to, R15 = PC
-  Stacks[i][STACKSIZE-3] = 0x14141414;  //R14 Initial Link Register dummy value, R14 = LR
-  Stacks[i][STACKSIZE-4] = 0x12121212;  //R12
-  Stacks[i][STACKSIZE-5] = 0x03030303;  //R3
+	//first set for each stack the stack pointer
+	tcbs[i].sp = &Stacks[i][STACKSIZE-16]; // thread stack pointer
+	//fill in bottom positions of the stack with register values, as if thread was already running and interrupted
+	Stacks[i][STACKSIZE-1] = 0x01000000;   // thumb bit
+	//Stacks[i][STACKSIZE-2] = PC; //The Program Counter will be set later with the address of the function it points to, R15 = PC
+	Stacks[i][STACKSIZE-3] = 0x14141414;  //R14 Initial Link Register dummy value, R14 = LR
+	Stacks[i][STACKSIZE-4] = 0x12121212;  //R12
+	Stacks[i][STACKSIZE-5] = 0x03030303;  //R3
 	Stacks[i][STACKSIZE-6] = 0x02020202;  //R2
-  Stacks[i][STACKSIZE-7] = 0x01010101;  //R1
-  Stacks[i][STACKSIZE-8] = 0x00000000;  //R0
-  Stacks[i][STACKSIZE-9] = 0x11111111;  //R11
-  Stacks[i][STACKSIZE-10] = 0x10101010;  //R10
-  Stacks[i][STACKSIZE-11] = 0x09090909;  //R9
-  Stacks[i][STACKSIZE-12] = 0x08080808;  //R8
-  Stacks[i][STACKSIZE-13] = 0x07070707;  //R7
-  Stacks[i][STACKSIZE-14] = 0x06060606;  //R6
-  Stacks[i][STACKSIZE-15] = 0x05050505;  //R5
-  Stacks[i][STACKSIZE-16] = 0x04040404;  //R4
+	Stacks[i][STACKSIZE-7] = 0x01010101;  //R1
+	Stacks[i][STACKSIZE-8] = 0x00000000;  //R0
+	Stacks[i][STACKSIZE-9] = 0x11111111;  //R11
+	Stacks[i][STACKSIZE-10] = 0x10101010;  //R10
+	Stacks[i][STACKSIZE-11] = 0x09090909;  //R9
+	Stacks[i][STACKSIZE-12] = 0x08080808;  //R8
+	Stacks[i][STACKSIZE-13] = 0x07070707;  //R7
+	Stacks[i][STACKSIZE-14] = 0x06060606;  //R6
+	Stacks[i][STACKSIZE-15] = 0x05050505;  //R5
+	Stacks[i][STACKSIZE-16] = 0x04040404;  //R4
 }
 
 //******** OS_AddThreads ***************
@@ -102,7 +102,7 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
 	tcbs[7].next = &tcbs[8];	//main thread 7 points to main thread 8
 	tcbs[8].next = &tcbs[9];	//main thread 8 points to main thread 9
 	tcbs[9].next = &tcbs[0];	//main thread 9 points to main thread 0
-	
+
 	//initialize threads as not blocked									
 	for(i=0; i< NUMTHREADS; i++){tcbs[i].blocked = 0;}
 	
@@ -111,26 +111,25 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
 
 	// initialize stacks, including initial PC
 	SetInitialStack(0);	//SetInitialStack initial stack of main thread 0
-	Stacks[0][STACKSIZE-2] = (int32_t)(thread0);	//Set address of thread 0 as PC
+	Stacks[0][STACKSIZE-2] = (int32_t)(thread0);  //Set address of thread0 as PC
 	SetInitialStack(1);	//SetInitialStack initial stack of main thread 1
-	Stacks[1][STACKSIZE-2] = (int32_t)(thread1);	//Set address of thread 1 as PC
+	Stacks[1][STACKSIZE-2] = (int32_t)(thread1);  //Set address of thread1 as PC
 	SetInitialStack(2);	//SetInitialStack initial stack of main thread 2
-	Stacks[2][STACKSIZE-2] = (int32_t)(thread2);	//Set address of thread 2 as PC
+	Stacks[2][STACKSIZE-2] = (int32_t)(thread2);  //Set address of thread2 as PC
 	SetInitialStack(3);	//SetInitialStack initial stack of main thread 3
-	Stacks[3][STACKSIZE-2] = (int32_t)(thread3);	//Set address of thread 3 as PC
+	Stacks[3][STACKSIZE-2] = (int32_t)(thread3);  //Set address of thread3 as PC
 	SetInitialStack(4);	//SetInitialStack initial stack of main thread 4
-	Stacks[4][STACKSIZE-2] = (int32_t)(thread4);	//Set address of thread 4 as PC
+	Stacks[4][STACKSIZE-2] = (int32_t)(thread4);  //Set address of thread4 as PC
 	SetInitialStack(5);	//SetInitialStack initial stack of main thread 5
-	Stacks[5][STACKSIZE-2] = (int32_t)(thread5);	//Set address of thread 5 as PC	
+	Stacks[5][STACKSIZE-2] = (int32_t)(thread5);  //Set address of thread5 as PC
 	SetInitialStack(6);	//SetInitialStack initial stack of main thread 6
-	Stacks[6][STACKSIZE-2] = (int32_t)(thread6);	//Set address of thread 6 as PC
-	SetInitialStack(7);	//SetInitialStack initial stack of main thread 7
-	Stacks[7][STACKSIZE-2] = (int32_t)(thread7);	//Set address of thread 7 as PC
-	SetInitialStack(8);	//SetInitialStack initial stack of main thread 8
-	Stacks[8][STACKSIZE-2] = (int32_t)(thread8);	//Set address of thread 8 as PC
-	SetInitialStack(9);	//SetInitialStack initial stack of main thread 9
-	Stacks[9][STACKSIZE-2] = (int32_t)(thread9);	//Set address of thread 9 as PC
-
+	Stacks[6][STACKSIZE-2] = (int32_t)(thread6);  //Set address of thread5 as PC
+	SetInitialStack(7);  //SetInitialStack initial stack of main thread 6
+	Stacks[7][STACKSIZE-2] = (int32_t)(thread7);  //Set address of thread 7 as PC
+	SetInitialStack(8);	 //SetInitialStack initial stack of main thread 8
+	Stacks[8][STACKSIZE-2] = (int32_t)(thread8);  //Set address of thread 8 as PC
+	SetInitialStack(9);	 //SetInitialStack initial stack of main thread 9
+	Stacks[9][STACKSIZE-2] = (int32_t)(thread9);  //Set address of thread 9 as PC
 	
 	//initialize priority for each thread
 	tcbs[0].priority = p0;
@@ -156,13 +155,13 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
 // Errors: theTimeSlice must be less than 16,777,216
 void OS_Launch(uint32_t theTimeSlice){
 	//OS_SysTick_Init(theTimeSlice);
-  STCTRL = 0;                  // disable SysTick during setup
-  STCURRENT = 0;               // any write to current clears it
-  SYSPRI3 =(SYSPRI3&0x00FFFFFF)|0xE0000000; // set priority 7 for systick interrupt
+	STCTRL = 0;                  // disable SysTick during setup
+	STCURRENT = 0;               // any write to current clears it
+	SYSPRI3 =(SYSPRI3&0x00FFFFFF)|0xE0000000; // set priority 7 for systick interrupt
 	//do not use higher priority than 7 because systick will switch the main threads 
 	//and needs to be interrupted by event threads
-  STRELOAD = theTimeSlice - 1; // reload value
-  STCTRL = 0x00000007;         // enable, core clock and interrupt arm
+	STRELOAD = theTimeSlice - 1; // reload value
+	STCTRL = 0x00000007;         // enable, core clock and interrupt arm
 	StartOS();                   // start on the first task
 }
 
@@ -178,8 +177,7 @@ void Scheduler(void){  // every time slice
 	uint8_t maxprio = 255;
 	tcbType *tempPt;
 	tcbType *bestPt;
-  tempPt = RunPt;      
-	//Profile_Toggle4();
+	tempPt = RunPt;      
 	// search for highest thread not blocked or sleeping
 	do{
 		tempPt = tempPt->next;  //skips at least one
@@ -190,7 +188,6 @@ void Scheduler(void){  // every time slice
 		}
 	} while (RunPt != tempPt); //search through all linked list
 	RunPt = bestPt; //move to next suitable thread
-	//Profile_Toggle3();
 }
 
 //******** OS_Suspend ***************
@@ -219,6 +216,7 @@ void OS_Sleep(uint32_t sleepTime){
 // *******************************************************************************************************
 // ****************************************** Semaphore section ******************************************
 // *******************************************************************************************************
+
 // ******** OS_InitSemaphore ************
 // Initialize counting semaphore
 // Inputs:  pointer to a semaphore

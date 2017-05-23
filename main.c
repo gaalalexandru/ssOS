@@ -58,7 +58,7 @@ void Task2(void){		//Edge triggered task PF0
   while(1){
 		OS_Wait(&SemPortF.pin0); // signaled in OS on button touch
 		OS_Sleep(50); //sleep to debounce switch		
-		if(!GPIOPinRead(GPIO_PORTF_BASE,GPIO_INT_PIN_0)) {   
+		if(GPIOPinRead(GPIO_PORTF_BASE,GPIO_INT_PIN_0)!=GPIO_PIN_0) {   
 			Profile_Toggle2();
 			Count2++;
 		}
@@ -75,7 +75,7 @@ void Task3(void){	 //response to task PF4
   while(1){
 		OS_Wait(&SemPortF.pin4); // signaled in OS on button touch
 		OS_Sleep(50); //sleep to debounce switch		
-		if(!GPIOPinRead(GPIO_PORTF_BASE,GPIO_INT_PIN_4)) {   
+		if(GPIOPinRead(GPIO_PORTF_BASE,GPIO_INT_PIN_4)!=GPIO_PIN_4) {   
 			Profile_Toggle3();
 			Count3++;
 		}
@@ -93,7 +93,7 @@ void Task4(void){	 //Edge triggered task PD6
   while(1){
 		OS_Wait(&SemPortD.pin6); // signaled in OS on button touch
 		OS_Sleep(50); //sleep to debounce switch		
-		if(!GPIOPinRead(GPIO_PORTD_BASE,GPIO_INT_PIN_6)) {   
+		if(GPIOPinRead(GPIO_PORTD_BASE,GPIO_INT_PIN_6)!=GPIO_PIN_6) {   
 			Profile_Toggle4();
 			Count4++;
 		}
@@ -110,7 +110,7 @@ void Task5(void){	 //response to task PD7
   while(1){
 		OS_Wait(&SemPortD.pin7); // signaled in OS on button touch
 		OS_Sleep(50); //sleep to debounce switch		
-		if(!GPIOPinRead(GPIO_PORTD_BASE,GPIO_INT_PIN_7)) {   
+		if(GPIOPinRead(GPIO_PORTD_BASE,GPIO_INT_PIN_7)!=GPIO_PIN_7) {   
 			Profile_Toggle5();
 			Count5++;
 		}
